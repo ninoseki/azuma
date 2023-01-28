@@ -1,6 +1,7 @@
 import tempfile
 from pathlib import Path
 
+import ci
 import pytest
 from git.repo import Repo
 
@@ -22,6 +23,7 @@ def paths(repo: Repo):
     return list(dir.glob("./rules/**/*.yml"))
 
 
+@pytest.mark.skipif(not ci.is_ci(), reason="do fuzzing test in CI")
 def test_parse_file(paths: list[Path]):
     for path in paths:
         try:

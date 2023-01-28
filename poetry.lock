@@ -67,6 +67,18 @@ files = [
 ]
 
 [[package]]
+name = "ci-py"
+version = "1.0.0"
+description = "Python toolkit for working with Continuous Integration services."
+category = "dev"
+optional = false
+python-versions = "*"
+files = [
+    {file = "ci-py-1.0.0.tar.gz", hash = "sha256:47fe9b2ec5ce286c62243654bef3aebcba77bac1217e0ebdf2abef80ec015d89"},
+    {file = "ci_py-1.0.0-py2.py3-none-any.whl", hash = "sha256:bc5d13c8dff8f402ac6340699083502115a2c55b96bf5b37204ac77bc81b605e"},
+]
+
+[[package]]
 name = "click"
 version = "8.1.3"
 description = "Composable command line interface toolkit"
@@ -866,4 +878,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "9baafef824f7ef81dbe4f3a698295e1d6f3254d2412b56d850f541cd5da99d71"
+content-hash = "c3cfd8e9a5e843b62135a5f977e4604261ab2ae1016f554049cba5a10996c801"
