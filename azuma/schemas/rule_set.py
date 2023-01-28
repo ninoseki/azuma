@@ -9,7 +9,7 @@ from .rule import Rule
 class RuleSet(BaseModel):
     rules: list[Rule] = Field(default_factory=list)
 
-    def match(self, event: dict[Any, Any]) -> list[Rule]:
+    def match_all(self, event: dict[Any, Any]) -> list[Rule]:
         """Check whether an event is matched with the rules
 
         Args:

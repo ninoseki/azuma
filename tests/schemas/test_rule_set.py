@@ -30,6 +30,6 @@ def test_rules(rule_set: schemas.RuleSet, paths: list[Path]):
         ({"a": "bar", "b": "foo"}, 0),
     ],
 )
-def test_match(rule_set: schemas.RuleSet, event: dict, expected: int):
-    matched = rule_set.match(event)
+def test_match_all(rule_set: schemas.RuleSet, event: dict, expected: int):
+    matched = rule_set.match_all(event)
     assert len(matched) == expected
