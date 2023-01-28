@@ -5,6 +5,8 @@ description = "Yet another Sigma library for Python"
 authors = ["Manabu Niseki <manabu.niseki@gmail.com>"]
 license = "MIT"
 readme = "README.md"
+homepage = "https://github.com/ninoseki/azuma"
+repository = "https://github.com/ninoseki/azuma"
 
 [tool.poetry.dependencies]
 python = "^3.10"
