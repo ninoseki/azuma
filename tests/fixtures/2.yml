@@ -1,0 +1,7 @@
+title: sample2
+detection:
+  foo:
+    a|startswith: foo
+  condition: foo
+logsource:
+  category: test
