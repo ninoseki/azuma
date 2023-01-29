@@ -1,7 +1,7 @@
 from pathlib import Path
 
-import pydantic
 import yaml
+from pydantic import BaseModel
 from pydantic.error_wrappers import ErrorWrapper, ValidationError
 from pydantic.parse import Protocol, load_file, load_str_bytes
 from pydantic.utils import ROOT_KEY
@@ -9,7 +9,9 @@ from pydantic.utils import ROOT_KEY
 YAML_CONTENT_TYPES = ["text/yaml", "application/x-yaml"]
 
 
-class BaseModel(pydantic.BaseModel):
+class YAMLBaseModel(BaseModel):
+    """BaseModel with YAML support"""
+
     @classmethod
     def parse_file(
         cls,
