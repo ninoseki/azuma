@@ -5,8 +5,8 @@ invoke the right sequence of searches into the rule and logic operations.
 
 from lark import Lark, Token, Transformer, Tree
 
-from .exceptions import UnsupportedFeature
-from .scan import analyze_x_of, match_search_id
+from azuma.exceptions import UnsupportedFeature
+from azuma.matchers import analyze_x_of, match_search_id
 
 # Grammar defined for the condition strings within the Sigma rules
 grammar = """

@@ -3,8 +3,7 @@ from typing import Any
 from pydantic import BaseModel, Field, root_validator
 
 from azuma import types
-from azuma.parser import prepare_condition
-from azuma.utils import apply_modifiers, normalize_field_map
+from azuma.parsers import apply_modifiers, normalize_field_map, prepare_condition
 
 
 class DetectionField(BaseModel):
