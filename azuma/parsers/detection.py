@@ -23,7 +23,7 @@ SUPPORTED_MODIFIERS = {
 }
 
 
-def decode_base64(x: str):
+def decode_base64(x: str) -> str:
     x = x.replace("\n", "")
     return base64.b64encode(x.encode()).decode()
 
@@ -36,7 +36,7 @@ MODIFIER_FUNCTIONS = {
 }
 
 
-def process_field_name(field_string: str):
+def process_field_name(field_string: str) -> tuple[str, list[str]]:
     name_and_modifiers = field_string.split("|")
     name = name_and_modifiers.pop(0)
     modifiers = [_m for _m in name_and_modifiers if _m]
@@ -58,7 +58,7 @@ ESCAPED_WILDCARD_PATTERN = re.compile(
 UPTO_WILDCARD = re.compile(r"^([^\\?*]+|(?:\\[^?*\\])+)+")
 
 
-def sigma_string_to_regex(original_value: str):
+def sigma_string_to_regex(original_value: str) -> str:
     value = original_value
     full_content: list[str] = []
 

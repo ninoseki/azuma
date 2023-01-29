@@ -1,7 +1,7 @@
 import pytest
 import regex as re
 
-from azuma.utils import sigma_string_to_regex
+from azuma.parsers.detection import sigma_string_to_regex
 
 
 @pytest.mark.parametrize(
