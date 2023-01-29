@@ -10,11 +10,11 @@ if TYPE_CHECKING:
 
 
 def match_search_id(rule: "schemas.Rule", event: dict[Any, Any], search_id: str):
-    search_fields = rule.get_detection_search_fields(search_id)
-    if search_fields is not None:
-        return find_matches(event, search_fields)
+    search_fields = rule.detection.get_search_fields(search_id)
+    if search_fields is None:
+        raise ValueError(f"Search fields for {search_id} are missing")
 
-    raise ValueError()
+    return find_matches(event, search_fields)
 
 
 def check_pair(event: dict[Any, Any], key: str, value: types.Query) -> bool:
@@ -127,7 +127,7 @@ def analyze_x_of(
     """
     # First we need to choose our set of fields based on our selector.
     matches: dict[str, "schemas.DetectionField"] = {}
-    all_searches = rule.detection_all_searches
+    all_searches = rule.detection.all_searches
 
     if selector is None:  # None indicates all.
         matches = all_searches
@@ -146,7 +146,7 @@ def analyze_x_of(
     # Now that we have our searches to check, run them
     search_hits = 0
     search_misses = 0
-    for _search_id, search_fields in matches.items():
+    for search_fields in matches.values():
         if find_matches(event, search_fields, match_all):
             search_hits += 1
         else:
