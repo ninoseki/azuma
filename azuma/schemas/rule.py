@@ -5,13 +5,13 @@ from pydantic import Field, validator
 from azuma import types
 from azuma.validators import is_valid_date_format
 
-from .base import BaseModel
 from .detection import Detection, DetectionField
 from .log_source import LogSource
 from .related import Related
+from .yaml_model import YAMLBaseModel
 
 
-class Rule(BaseModel):
+class Rule(YAMLBaseModel):
     title: str = Field(
         ...,
         max_length=256,
