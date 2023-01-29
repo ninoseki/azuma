@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "azuma"
-version = "0.1.0"
+version = "0.0.0"
 description = "Yet another Sigma library for Python"
 authors = ["Manabu Niseki <manabu.niseki@gmail.com>"]
 license = "MIT"
@@ -29,9 +29,12 @@ pyupgrade = "^3.3.1"
 ruff = "^0.0.236"
 types-pyyaml = "^6.0.12.3"
 
+[tool.poetry-dynamic-versioning]
+enable = true
+
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core", "poetry-dynamic-versioning"]
+build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.ruff]
 select = [
