@@ -46,3 +46,10 @@ class Detection(BaseModel):
         detection = normalize_detection(values)
 
         return {"condition": condition, "detection": detection, "timeframe": timeframe}
+
+    def get_search_fields(self, search_id: str) -> DetectionField | None:
+        return self.detection.get(search_id)
+
+    @property
+    def all_searches(self) -> dict[str, DetectionField]:
+        return self.detection

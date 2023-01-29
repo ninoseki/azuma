@@ -2,10 +2,9 @@ from typing import Any, Literal
 
 from pydantic import Field, validator
 
-from azuma import types
 from azuma.validators import is_valid_date_format
 
-from .detection import Detection, DetectionField
+from .detection import Detection
 from .log_source import LogSource
 from .related import Related
 from .yaml_model import YAMLBaseModel
@@ -91,17 +90,6 @@ class Rule(YAMLBaseModel):
 
         return v
 
-    @property
-    def detection_condition(self) -> types.Condition:
-        return self.detection.condition
-
-    @property
-    def detection_all_searches(self) -> dict[str, DetectionField]:
-        return self.detection.detection
-
-    def get_detection_search_fields(self, search_id: str) -> DetectionField | None:
-        return self.detection.detection.get(search_id)
-
     def match(self, event: dict[Any, Any]) -> bool:
         """Check whether an event is matched with the rule or not
 
@@ -114,5 +102,4 @@ class Rule(YAMLBaseModel):
         if not isinstance(event, dict):
             raise ValueError("event should be a dict")
 
-        condition = self.detection_condition
-        return condition(self, event)
+        return self.detection.condition(self, event)
