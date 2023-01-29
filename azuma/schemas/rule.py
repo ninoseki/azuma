@@ -111,5 +111,8 @@ class Rule(BaseModel):
         Returns:
             bool: Returns True if an event is matched with the rule. False if not
         """
+        if not isinstance(event, dict):
+            raise ValueError("event should be a dict")
+
         condition = self.detection_condition
         return condition(self, event)
