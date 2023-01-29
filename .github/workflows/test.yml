@@ -13,6 +13,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -23,8 +24,7 @@ jobs:
           poetry-version: ${{ matrix.poetry-version }}
 
       - name: Install Python dependencies
-        run: |
-          poetry install
+        run: poetry install
 
       - name: Run tests
         run: poetry run pytest
