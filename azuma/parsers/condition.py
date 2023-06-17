@@ -3,6 +3,8 @@ This parser uses lark to transform the condition strings from signatures into ca
 invoke the right sequence of searches into the rule and logic operations.
 """
 
+import typing as t
+
 from lark import Lark, Token, Transformer, Tree
 
 from azuma.exceptions import UnsupportedFeature
@@ -66,15 +68,18 @@ class FactoryTransformer(Transformer):
         return args[0].value
 
     @staticmethod
-    def atom(args: list):
-        if not all(callable(_x) for _x in args):
+    def atom(args: list[t.Callable]):
+        if not all(callable(x) for x in args):
             raise ValueError(args)
 
         return args[0]
 
     @staticmethod
-    def not_rule(args):
+    def not_rule(args: list[t.Any]):
         negate, value = args
+
+        negate = t.cast(Tree | None, negate)
+        value = t.cast(t.Callable, value)
 
         assert callable(value)
 
@@ -87,8 +92,8 @@ class FactoryTransformer(Transformer):
         return _negate
 
     @staticmethod
-    def and_rule(args):
-        if not all(callable(_x) for _x in args):
+    def and_rule(args: list[t.Callable]):
+        if not all(callable(x) for x in args):
             raise ValueError(args)
 
         if len(args) == 1:
@@ -104,8 +109,8 @@ class FactoryTransformer(Transformer):
         return _and_operation
 
     @staticmethod
-    def or_rule(args):
-        if not all(callable(_x) for _x in args):
+    def or_rule(args: list[t.Any]):
+        if not all(callable(x) for x in args):
             raise ValueError(args)
 
         if len(args) == 1:
@@ -121,18 +126,18 @@ class FactoryTransformer(Transformer):
         return _or_operation
 
     @staticmethod
-    def pipe_rule(args):
+    def pipe_rule(args: t.Any):
         return args[0]
 
     @staticmethod
-    def x_of(args):
+    def x_of(args: t.Any):
         # Load the left side of the X of statement
         count = None
         if args[0].children[0].type == "NUMBER":
             count = int(args[0].children[0].value)
 
         # Load the right side of the X of statement
-        selector = str(args[2])
+        selector: str | None = str(args[2])
         if selector == "them":
             selector = None
 
