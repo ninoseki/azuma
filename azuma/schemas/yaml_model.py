@@ -19,13 +19,13 @@ class YAMLBaseModel(BaseModel):
         *,
         content_type: str = "text/yaml",
         encoding: str = "utf8",
-        proto: Protocol = None,
+        proto: Protocol | None = None,
         allow_pickle: bool = False,
     ):
         if content_type not in YAML_CONTENT_TYPES:
             obj = load_file(
                 path,
-                proto=proto,
+                proto=proto,  # type: ignore
                 content_type=content_type,
                 encoding=encoding,
                 allow_pickle=allow_pickle,
@@ -44,14 +44,14 @@ class YAMLBaseModel(BaseModel):
         *,
         content_type: str = "text/yaml",
         encoding: str = "utf8",
-        proto: Protocol = None,
+        proto: Protocol | None = None,
         allow_pickle: bool = False,
     ):
         try:
             if content_type not in YAML_CONTENT_TYPES:
                 obj = load_str_bytes(
                     b,
-                    proto=proto,
+                    proto=proto,  # type: ignore
                     content_type=content_type,
                     encoding=encoding,
                     allow_pickle=allow_pickle,
