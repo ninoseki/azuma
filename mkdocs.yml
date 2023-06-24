@@ -1,0 +1,19 @@
+site_name: Azuma
+
+theme:
+  name: "material"
+
+plugins:
+  search:
+  autorefs:
+  mkdocstrings:
+    default_handler: python
+    handlers:
+      python:
+        options:
+          show_root_heading: true
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
