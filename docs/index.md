@@ -45,6 +45,32 @@ rule_set = RuleSet.from_dir("./rules/")
 rule_set.match_all({...})
 ```
 
+## CLI
+
+```bash
+azuma --help
+
+ Usage: azuma [OPTIONS] PATH TARGET
+
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────╮
+│ *    path        TEXT  Path (or glob pattern) to rule YAML file(s) [default: None] [required]           │
+│ *    target      TEXT  Path (or glob pattern) to event JSON file(s) [default: None] [required]          │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --install-completion          Install completion for the current shell.                                 │
+│ --show-completion             Show completion for the current shell, to copy it or customize the        │
+│                               installation.                                                             │
+│ --help                        Show this message and exit.                                               │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+```bash
+# Scan by single rule & single event file
+azuma rule.yml event.json
+# Scan by multiple rules & multiple event files
+azuma "rules/*.yml" "events/*.json"
+```
+
 ## Known limitations
 
 ### Detection

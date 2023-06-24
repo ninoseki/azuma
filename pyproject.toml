@@ -11,15 +11,16 @@ repository = "https://github.com/ninoseki/azuma"
 [tool.poetry.dependencies]
 python = "^3.10"
 lark-parser = ">=0.12,<1.0"
+loguru = "^0.7"
 pydantic = ">=1.8,<2.0"
 pyyaml = ">=6.0,<7.0"
 regex = ">=2022"
+typer = "^0.9.0"
 
 [tool.poetry.group.dev.dependencies]
 black = "^23.3"
 ci-py = "^1.0.0"
 gitpython = "^3.1"
-loguru = "^0.7"
 mypy = "^1.4"
 pre-commit = "^3.3"
 pytest = "^7.4"
@@ -34,6 +35,9 @@ urllib3 = "^1.0"
 mkdocs = "^1.4"
 mkdocs-material = "^9.1"
 mkdocstrings = {extras = ["python"], version = "^0.22"}
+
+[tool.poetry.scripts]
+azuma = "azuma.cli:app"
 
 [tool.poetry-dynamic-versioning]
 enable = true
