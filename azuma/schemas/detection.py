@@ -36,6 +36,7 @@ class Detection(BaseModel):
     condition: types.Condition = Field(...)
 
     @model_validator(mode="before")
+    @classmethod
     def transform(cls, values: Any):
         timeframe: str | None = None
         if "timeframe" in values:

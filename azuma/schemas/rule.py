@@ -77,6 +77,7 @@ class Rule(YAMLBaseModel):
     related: list[Related] | None = Field(default=None)
 
     @field_validator("date", "modified")
+    @classmethod
     def validate_date_format(cls, v: str | None):
         if v is None:
             return v
