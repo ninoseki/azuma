@@ -1,10 +1,9 @@
+import json
 from pathlib import Path
+from typing import Any
 
 import yaml
 from pydantic import BaseModel
-from pydantic.error_wrappers import ErrorWrapper, ValidationError
-from pydantic.parse import Protocol, load_file, load_str_bytes
-from pydantic.utils import ROOT_KEY
 
 YAML_CONTENT_TYPES = ["text/yaml", "application/x-yaml"]
 
@@ -19,23 +18,18 @@ class YAMLBaseModel(BaseModel):
         *,
         content_type: str = "text/yaml",
         encoding: str = "utf8",
-        proto: Protocol | None = None,
-        allow_pickle: bool = False,
+        strict: bool | None = None,
+        context: dict[str, Any] | None = None,
     ):
-        if content_type not in YAML_CONTENT_TYPES:
-            obj = load_file(
-                path,
-                proto=proto,  # type: ignore
-                content_type=content_type,
-                encoding=encoding,
-                allow_pickle=allow_pickle,
-                json_loads=cls.__config__.json_loads,
-            )
-        else:
-            with open(path, encoding=encoding) as f:
-                obj = yaml.safe_load(f.read())
+        with open(path, encoding=encoding) as f:
+            text = f.read()
 
-        return cls.parse_obj(obj)
+            if content_type in YAML_CONTENT_TYPES:
+                obj = yaml.safe_load(text)
+            else:
+                obj = json.loads(text)
+
+        return cls.model_validate(obj, strict=strict, context=context)
 
     @classmethod
     def parse_raw(
@@ -43,23 +37,12 @@ class YAMLBaseModel(BaseModel):
         b: str | bytes,
         *,
         content_type: str = "text/yaml",
-        encoding: str = "utf8",
-        proto: Protocol | None = None,
-        allow_pickle: bool = False,
+        strict: bool | None = None,
+        context: dict[str, Any] | None = None,
     ):
-        try:
-            if content_type not in YAML_CONTENT_TYPES:
-                obj = load_str_bytes(
-                    b,
-                    proto=proto,  # type: ignore
-                    content_type=content_type,
-                    encoding=encoding,
-                    allow_pickle=allow_pickle,
-                    json_loads=cls.__config__.json_loads,
-                )
-            else:
-                obj = yaml.safe_load(b)
-        except (ValueError, TypeError, UnicodeDecodeError) as e:
-            raise ValidationError([ErrorWrapper(e, loc=ROOT_KEY)], cls) from e
+        if content_type in YAML_CONTENT_TYPES:
+            obj = yaml.safe_load(b)
+        else:
+            obj = json.loads(b)
 
-        return cls.parse_obj(obj)
+        return cls.model_validate(obj, strict=strict, context=context)
