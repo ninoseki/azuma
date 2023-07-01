@@ -1,6 +1,6 @@
 from typing import Any
 
-from pydantic import BaseModel, Field, root_validator
+from pydantic import BaseModel, Field, model_validator
 
 from azuma import types
 from azuma.parsers import apply_modifiers, normalize_field_map, prepare_condition
@@ -35,16 +35,14 @@ class Detection(BaseModel):
     timeframe: str | None = Field(default=None)
     condition: types.Condition = Field(...)
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
     def transform(cls, values: Any):
         timeframe: str | None = None
         if "timeframe" in values:
             timeframe = values.pop("timeframe")
 
         condition = prepare_condition(values.pop("condition"))
-
         detection = normalize_detection(values)
-
         return {"condition": condition, "detection": detection, "timeframe": timeframe}
 
     def get_search_fields(self, search_id: str) -> DetectionField | None:

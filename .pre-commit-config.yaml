@@ -41,7 +41,7 @@ repos:
       - id: mypy
         additional_dependencies:
           - types-all
-          - pydantic[mypy]
+          - pydantic[mypy]==2.0.0
 
   - repo: https://github.com/andrei-shabanski/poetry-plugin-sort
     rev: v0.2.0

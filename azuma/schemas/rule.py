@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import Field, validator
+from pydantic import Field, field_validator
 
 from azuma.validators import is_valid_date_format
 
@@ -76,11 +76,7 @@ class Rule(YAMLBaseModel):
 
     related: list[Related] | None = Field(default=None)
 
-    @validator("detection", pre=True)
-    def transform_detection(cls, v: Any):
-        return Detection.parse_obj(v)
-
-    @validator("date", "modified")
+    @field_validator("date", "modified")
     def validate_date_format(cls, v: str | None):
         if v is None:
             return v
