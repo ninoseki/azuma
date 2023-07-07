@@ -3,6 +3,7 @@ This parser uses lark to transform the condition strings from signatures into ca
 invoke the right sequence of searches into the rule and logic operations.
 """
 
+import pathlib
 import typing as t
 
 from lark import Lark, Token, Transformer, Tree
@@ -10,43 +11,10 @@ from lark import Lark, Token, Transformer, Tree
 from azuma.exceptions import UnsupportedFeature
 from azuma.matchers import analyze_x_of, match_search_id
 
-# Grammar defined for the condition strings within the Sigma rules
-grammar = """
-        start: pipe_rule
-        %import common.WORD   // imports from terminal library
-        %ignore " "           // Disregard spaces in text
-        pipe_rule: or_rule ["|" aggregation_expression]
-        or_rule: and_rule (("or"|"OR") and_rule)*
-        and_rule: not_rule (("and"|"AND") not_rule)*
-        not_rule: [not] atom
-        not: "NOT" | "not"
-        atom: x_of | search_id | "(" pipe_rule ")"
-        search_id: SEARCH_ID
-        x: ALL | NUMBER
-        x_of: x OF search_pattern
-        search_pattern: /[a-zA-Z*_][a-zA-Z0-9*_]*/
-        aggregation_expression: aggregation_function "(" [aggregation_field] ")" [ "by" group_field ] comparison_op value
-                              | near_aggregation
-        aggregation_function: COUNT | MIN | MAX | AVG | SUM
-        near_aggregation: "near" or_rule
-        aggregation_field: SEARCH_ID
-        group_field: SEARCH_ID
-        comparison_op: GT | LT | EQ
-        GT: ">"
-        LT: "<"
-        EQ: "="
-        value: NUMBER
-        NUMBER: /[1-9][0-9]*/
-        NOT: "NOT"
-        SEARCH_ID: /[a-zA-Z_][a-zA-Z0-9_]*/
-        ALL: "all"
-        OF: "of"
-        COUNT: "count"
-        MIN: "min"
-        MAX: "max"
-        AVG: "avg"
-        SUM: "sum"
-        """
+BASE_PATH = pathlib.Path(__file__).parent
+GRAMMAR_PATH = BASE_PATH / "../grammar.lark"
+
+grammar = GRAMMAR_PATH.read_text()
 
 
 class FactoryTransformer(Transformer):

@@ -71,31 +71,44 @@ def sigma_string_to_regex(original_value: str) -> str:
             matched = match.group(0)
             full_content.append(re.escape(matched))
             value = value[len(matched) :]
-        elif value.startswith("*"):
+            continue
+
+        if value.startswith("*"):
             full_content.append(".*")
             value = value[1:]
-        elif value.startswith("\\*"):
+            continue
+
+        if value.startswith("\\*"):
             full_content.append(re.escape("*"))
             value = value[2:]
-        elif value.startswith("?"):
+            continue
+
+        if value.startswith("?"):
             full_content.append(".")
             value = value[1:]
-        elif value.startswith("\\?"):
+            continue
+
+        if value.startswith("\\?"):
             full_content.append(re.escape("?"))
             value = value[2:]
-        elif value.startswith(r"\\*"):
+            continue
+
+        if value.startswith(r"\\*"):
             full_content.append(re.escape("\\") + ".*")
             value = value[3:]
-        elif value.startswith(r"\\?"):
+            continue
+
+        if value.startswith(r"\\?"):
             full_content.append(re.escape("\\") + ".")
             value = value[3:]
-        elif value.startswith("\\"):
+            continue
+
+        if value.startswith("\\"):
             full_content.append(re.escape("\\"))
             value = value[1:]
-        else:
-            raise ValueError(
-                f"Could not parse string matching pattern: {original_value}"
-            )
+            continue
+
+        raise ValueError(f"Could not parse string matching pattern: {original_value}")
 
     return "".join(full_content)  # Sigma strings are case insensitive
 

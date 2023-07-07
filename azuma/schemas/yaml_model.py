@@ -12,11 +12,11 @@ class YAMLBaseModel(BaseModel):
     """BaseModel with YAML support"""
 
     @classmethod
-    def parse_file(
+    def parse_file(  # type: ignore
         cls,
         path: str | Path,
         *,
-        content_type: str = "text/yaml",
+        content_type: str | None = "text/yaml",
         encoding: str = "utf8",
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
@@ -32,11 +32,11 @@ class YAMLBaseModel(BaseModel):
         return cls.model_validate(obj, strict=strict, context=context)
 
     @classmethod
-    def parse_raw(
+    def parse_raw(  # type: ignore
         cls,
         b: str | bytes,
         *,
-        content_type: str = "text/yaml",
+        content_type: str | None = "text/yaml",
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
     ):
