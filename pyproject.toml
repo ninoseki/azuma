@@ -10,7 +10,7 @@ repository = "https://github.com/ninoseki/azuma"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-lark-parser = ">=0.12,<1.0"
+lark = { extras = ["interegular"], version = ">=1.1,<2.0" }
 loguru = ">=0.7,<1.0"
 pydantic = ">=2.0,<3.0"
 pyyaml = ">=6.0,<7.0"
@@ -34,7 +34,7 @@ urllib3 = "^1.0"
 [tool.poetry.group.doc.dependencies]
 mkdocs = "^1.4"
 mkdocs-material = "^9.1"
-mkdocstrings = {extras = ["python"], version = "^0.22"}
+mkdocstrings = { extras = ["python"], version = "^0.22" }
 
 [tool.poetry.scripts]
 azuma = "azuma.cli:app"
@@ -48,13 +48,13 @@ build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.ruff]
 select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "C",    # flake8-comprehensions
-    "B",    # flake8-bugbear
-    "T20",  # flake8-print
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "T20", # flake8-print
 ]
 ignore = [
-    "E501",  # line too long, handled by black
+    "E501", # line too long, handled by black
 ]
