@@ -126,7 +126,7 @@ class FactoryTransformer(Transformer):
 
 # Create & initialize Lark class instance
 factory_parser = Lark(
-    grammar, parser="lalr", transformer=FactoryTransformer(), maybe_placeholders=True
+    grammar, parser="lalr", transformer=FactoryTransformer(), strict=True
 )
 
 
