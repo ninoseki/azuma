@@ -48,7 +48,7 @@ rule_set.match_all({...})
 ## CLI
 
 ```bash
-azuma --help
+$ azuma --help
 
  Usage: azuma [OPTIONS] PATH TARGET
 
@@ -66,9 +66,9 @@ azuma --help
 
 ```bash
 # Scan by single rule & single event file
-azuma rule.yml event.json
+$ azuma rule.yml event.json
 # Scan by multiple rules & multiple event files
-azuma "rules/*.yml" "events/*.json"
+$ azuma "rules/*.yml" "events/*.json"
 ```
 
 ## Known limitations
