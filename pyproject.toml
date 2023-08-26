@@ -21,19 +21,18 @@ typer = ">=0.9,<1.0"
 black = "^23.7"
 ci-py = "^1.0"
 gitpython = "^3.1"
-mypy = "^1.4"
+mypy = "^1.5"
 pre-commit = "^3.3"
 pytest = "^7.4"
 pytest-pretty = "^1.2"
-pytest-randomly = "^3.13"
-pyupgrade = "^3.9"
+pytest-randomly = "^3.15"
+pyupgrade = "^3.10"
 ruff = "^0.0"
 types-pyyaml = "^6.0"
-urllib3 = "^1.0"
 
 [tool.poetry.group.doc.dependencies]
-mkdocs = "^1.4"
-mkdocs-material = "^9.1"
+mkdocs = "^1.5"
+mkdocs-material = "^9.2"
 mkdocstrings = { extras = ["python"], version = "^0.22" }
 
 [tool.poetry.scripts]
@@ -54,6 +53,8 @@ select = [
     "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
     "T20", # flake8-print
+    "I",   # isort
+    "RUF", # Ruff-specific rules
 ]
 ignore = [
     "E501", # line too long, handled by black
