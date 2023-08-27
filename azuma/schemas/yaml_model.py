@@ -21,6 +21,18 @@ class YAMLBaseModel(BaseModel):
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
     ):
+        """Parse a file.
+
+        Args:
+            path (str | Path): Path to a file.
+            content_type (str | None, optional): Content type. Defaults to "text/yaml".
+            encoding (str, optional): Encoding. Defaults to "utf8".
+            strict (bool | None, optional): Strict or not. Defaults to None.
+            context (dict[str, Any] | None, optional): Context. Defaults to None.
+
+        Returns:
+            YAMLBaseModel: Parsed instance.
+        """
         with open(path, encoding=encoding) as f:
             text = f.read()
 
@@ -40,6 +52,17 @@ class YAMLBaseModel(BaseModel):
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
     ):
+        """Parse a raw text.
+
+        Args:
+            b (str | bytes): String or bytes.
+            content_type (str | None, optional): Content type. Defaults to "text/yaml".
+            strict (bool | None, optional): Strict or not. Defaults to None.
+            context (dict[str, Any] | None, optional): Context. Defaults to None.
+
+        Returns:
+            YAMLBaseModel: Parsed instance.
+        """
         if content_type in YAML_CONTENT_TYPES:
             obj = yaml.safe_load(b)
         else:
