@@ -46,3 +46,4 @@ repos:
         additional_dependencies:
           - types-all
           - pydantic==2.3.0
+          - returns==0.22.0
