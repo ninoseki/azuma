@@ -4,7 +4,7 @@ from typing import Any
 import regex as re
 
 from azuma import types
-from azuma.exceptions import UnsupportedFeature
+from azuma.exceptions import UnsupportedFeatureError
 
 # TODO We need to support the rest of them
 SUPPORTED_MODIFIERS = {
@@ -43,7 +43,9 @@ def process_field_name(field_string: str) -> tuple[str, list[str]]:
 
     unsupported = set(modifiers) - SUPPORTED_MODIFIERS
     if unsupported:
-        raise UnsupportedFeature(f"Unsupported field modifiers used: {unsupported}")
+        raise UnsupportedFeatureError(
+            f"Unsupported field modifiers used: {unsupported}"
+        )
 
     return name, modifiers
 

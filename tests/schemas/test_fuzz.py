@@ -1,3 +1,4 @@
+import contextlib
 import tempfile
 from pathlib import Path
 
@@ -6,7 +7,7 @@ import pytest
 from git.repo import Repo
 
 from azuma import schemas
-from azuma.exceptions import UnsupportedFeature
+from azuma.exceptions import UnsupportedFeatureError
 
 # Confirm whether azuma can parse official rules or not
 
@@ -26,7 +27,5 @@ def paths(repo: Repo):
 @pytest.mark.skipif(not ci.is_ci(), reason="do fuzzing test in CI")
 def test_parse_file(paths: list[Path]):
     for path in paths:
-        try:
+        with contextlib.suppress(UnsupportedFeatureError):
             assert schemas.Rule.parse_file(path).title is not None
-        except UnsupportedFeature:
-            pass

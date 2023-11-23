@@ -8,7 +8,7 @@ import typing as t
 
 from lark import Lark, Token, Transformer, Tree
 
-from azuma.exceptions import UnsupportedFeature
+from azuma.exceptions import UnsupportedFeatureError
 from azuma.matchers import analyze_x_of, match_search_id
 
 BASE_PATH = pathlib.Path(__file__).parent
@@ -68,11 +68,7 @@ class FactoryTransformer(Transformer):
             return args[0]
 
         def _and_operation(*state):
-            for component in args:
-                if not component(*state):
-                    return False
-
-            return True
+            return all(component(*state) for component in args)
 
         return _and_operation
 
@@ -85,11 +81,7 @@ class FactoryTransformer(Transformer):
             return args[0]
 
         def _or_operation(*state):
-            for component in args:
-                if component(*state):
-                    return True
-
-            return False
+            return any(component(*state) for component in args)
 
         return _or_operation
 
@@ -117,11 +109,11 @@ class FactoryTransformer(Transformer):
 
     @staticmethod
     def aggregation_expression(args):
-        raise UnsupportedFeature("Aggregation expressions not supported.")
+        raise UnsupportedFeatureError("Aggregation expressions not supported.")
 
     @staticmethod
     def near_aggregation(args):
-        raise UnsupportedFeature("Near operation not supported.")
+        raise UnsupportedFeatureError("Near operation not supported.")
 
 
 # Create & initialize Lark class instance

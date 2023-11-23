@@ -63,11 +63,7 @@ def find_matches(
             for field in search.list_search
         )
 
-    for field in search.map_search:
-        if find_matches_by_map(event, field):
-            return True
-
-    return False
+    return any(find_matches_by_map(event, field) for field in search.map_search)
 
 
 def find_matches_by_map(event: dict[Any, Any], search: types.DetectionMap) -> bool:
