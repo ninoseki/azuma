@@ -19,22 +19,22 @@ returns = ">=0.22,<1.0"
 typer = ">=0.9,<1.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^23.7"
+black = "^23.11"
 ci-py = "^1.0"
 gitpython = "^3.1"
-mypy = "^1.5"
-pre-commit = "^3.3"
+mypy = "^1.7"
+pre-commit = "^3.5"
 pytest = "^7.4"
 pytest-pretty = "^1.2"
 pytest-randomly = "^3.15"
-pyupgrade = "^3.10"
-ruff = "^0.0"
+pyupgrade = "^3.15"
+ruff = "^0.1"
 types-pyyaml = "^6.0"
 
 [tool.poetry.group.doc.dependencies]
 mkdocs = "^1.5"
-mkdocs-material = "^9.2"
-mkdocstrings = { extras = ["python"], version = "^0.22" }
+mkdocs-material = "^9.4"
+mkdocstrings = { extras = ["python"], version = "^0.24" }
 
 [tool.poetry.scripts]
 azuma = "azuma.cli:app"
@@ -48,14 +48,17 @@ build-backend = "poetry_dynamic_versioning.backend"
 
 [tool.ruff]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
-    "T20", # flake8-print
+    "C",   # flake8-comprehensions
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
     "I",   # isort
+    "N",   # pep8-naming
+    "RET", # flake8-return
     "RUF", # Ruff-specific rules
+    "SIM", # flake8-simplify
+    "T20", # flake8-print
+    "W",   # pycodestyle warnings
 ]
 ignore = [
     "E501", # line too long, handled by black

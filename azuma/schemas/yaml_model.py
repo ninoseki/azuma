@@ -63,9 +63,6 @@ class YAMLBaseModel(BaseModel):
         Returns:
             YAMLBaseModel: Parsed instance.
         """
-        if content_type in YAML_CONTENT_TYPES:
-            obj = yaml.safe_load(b)
-        else:
-            obj = json.loads(b)
+        obj = yaml.safe_load(b) if content_type in YAML_CONTENT_TYPES else json.loads(b)
 
         return cls.model_validate(obj, strict=strict, context=context)

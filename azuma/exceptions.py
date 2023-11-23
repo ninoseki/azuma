@@ -2,7 +2,7 @@ class AzumaError(Exception):
     pass
 
 
-class UnsupportedFeature(AzumaError):
+class UnsupportedFeatureError(AzumaError):
     """Raised when a signature using an unsupported sigma feature is loaded."""
 
     pass
