@@ -11,12 +11,12 @@ repos:
       - id: trailing-whitespace
 
   - repo: https://github.com/python-poetry/poetry
-    rev: 1.7.1
+    rev: 1.7.0
     hooks:
       - id: poetry-check
 
   - repo: https://github.com/andrei-shabanski/poetry-plugin-sort
-    rev: v0.2.0
+    rev: v0.2.1
     hooks:
       - id: poetry-sort
 
@@ -28,7 +28,7 @@ repos:
           - --py310-plus
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.14
     hooks:
       - id: ruff
         args:
@@ -36,10 +36,10 @@ repos:
       - id: ruff-format
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.7.0
+    rev: v1.8.0
     hooks:
       - id: mypy
         additional_dependencies:
           - types-all
-          - pydantic==2.5.2
+          - pydantic==2.5.3
           - returns==0.22.0
