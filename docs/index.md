@@ -19,7 +19,7 @@ pip install azuma
 ```py
 from azuma import Rule, RuleSet
 
-rule = Rule.parse_raw(
+rule = Rule.model_validate_yaml(
     """
 title: test
 detection:

@@ -5,7 +5,7 @@ from azuma import schemas
 
 @pytest.fixture
 def one_of_them_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:
@@ -33,7 +33,7 @@ def test_1_of_them(event: dict, expected: bool, one_of_them_rule: schemas.Rule):
 
 @pytest.fixture
 def two_of_them_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:
@@ -61,7 +61,7 @@ def test_2_of_them(event: dict, expected: bool, two_of_them_rule: schemas.Rule):
 
 @pytest.fixture
 def one_of_x_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:

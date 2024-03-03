@@ -13,7 +13,7 @@ from azuma import schemas
     ],
 )
 def test_escaped_wildcards_with_literal_starts(event: dict, expected: bool):
-    rule = schemas.Rule.parse_raw(
+    rule = schemas.Rule.model_validate_yaml(
         r"""
 title: literal_star
 logsource:
@@ -37,7 +37,7 @@ detection:
     ],
 )
 def test_escaped_wildcards_with_literal_question(event: dict, expected: bool):
-    rule = schemas.Rule.parse_raw(
+    rule = schemas.Rule.model_validate_yaml(
         r"""
 title: literal_question
 logsource:
@@ -61,7 +61,7 @@ detection:
     ],
 )
 def test_escaped_wildcards_with_star(event: dict, expected: bool):
-    rule = schemas.Rule.parse_raw(
+    rule = schemas.Rule.model_validate_yaml(
         """
 title: star
 logsource:
@@ -85,7 +85,7 @@ detection:
     ],
 )
 def test_escaped_wildcards_with_question(event: dict, expected: bool):
-    rule = schemas.Rule.parse_raw(
+    rule = schemas.Rule.model_validate_yaml(
         """
 title: question
 logsource:

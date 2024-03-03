@@ -5,7 +5,7 @@ from azuma import schemas
 
 @pytest.fixture
 def all_of_them_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:
@@ -34,7 +34,7 @@ def test_all_of_them(event: dict, expected: bool, all_of_them_rule: schemas.Rule
 
 @pytest.fixture
 def all_of_x_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:
