@@ -28,4 +28,4 @@ def paths(repo: Repo):
 def test_parse_file(paths: list[Path]):
     for path in paths:
         with contextlib.suppress(UnsupportedFeatureError):
-            assert schemas.Rule.parse_file(path).title is not None
+            assert schemas.Rule.model_validate_file(path).title is not None
