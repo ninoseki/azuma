@@ -5,7 +5,7 @@ from azuma import schemas
 
 @pytest.fixture
 def rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: test
 detection:

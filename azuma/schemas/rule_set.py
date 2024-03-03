@@ -41,4 +41,4 @@ class RuleSet(BaseModel):
             dir = Path(dir)
 
         paths = dir.glob(f"**/{pattern}")
-        return cls(rules=[Rule.parse_file(p) for p in paths])
+        return cls(rules=[Rule.model_validate_file(p) for p in paths])

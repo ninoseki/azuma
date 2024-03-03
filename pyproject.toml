@@ -19,19 +19,18 @@ returns = ">=0.22,<1.0"
 typer = ">=0.9,<1.0"
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.1"
 ci-py = "^1.0"
 gitpython = "^3.1"
 mypy = "^1.8"
 pre-commit = "^3.6"
-pytest = "^7.4"
+pytest = "^8.0"
 pytest-pretty = "^1.2"
 pytest-randomly = "^3.15"
 pyupgrade = "^3.15"
-ruff = "^0.1"
+ruff = "^0.3"
 types-pyyaml = "^6.0"
 
-[tool.poetry.group.doc.dependencies]
+[tool.poetry.group.docs.dependencies]
 mkdocs = "^1.5"
 mkdocs-material = "^9.5"
 mkdocstrings = { extras = ["python"], version = "^0.24" }
@@ -46,7 +45,7 @@ enable = true
 requires = ["poetry-core", "poetry-dynamic-versioning"]
 build-backend = "poetry_dynamic_versioning.backend"
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "B",   # flake8-bugbear
     "C",   # flake8-comprehensions

@@ -51,14 +51,14 @@ class Rule(YAMLBaseModel):
         description="A short description of the rule and the malicious activity that can be detected (max. 65,535 characters)",
     )
 
-    status: None | (
-        Literal["stable", "test", "experimental", "deprecated", "unsupported"]
+    status: (
+        None | (Literal["stable", "test", "experimental", "deprecated", "unsupported"])
     ) = Field(default=None, description="The status of the rule")
-    level: None | (
-        Literal["informational", "low", "medium", "high", "critical"]
-    ) = Field(
-        default=None,
-        description="The level field contains one of five string values. It describes the criticality of a triggered rule. While low and medium level events have an informative character, events with high and critical level should lead to immediate reviews by security analysts.",
+    level: None | (Literal["informational", "low", "medium", "high", "critical"]) = (
+        Field(
+            default=None,
+            description="The level field contains one of five string values. It describes the criticality of a triggered rule. While low and medium level events have an informative character, events with high and critical level should lead to immediate reviews by security analysts.",
+        )
     )
 
     references: list[str] | None = Field(

@@ -12,7 +12,7 @@ class YAMLBaseModel(BaseModel):
     """BaseModel with YAML support"""
 
     @classmethod
-    def parse_file(  # type: ignore
+    def model_validate_file(  # type: ignore
         cls,
         path: str | Path,
         *,
@@ -44,7 +44,7 @@ class YAMLBaseModel(BaseModel):
         return cls.model_validate(obj, strict=strict, context=context)
 
     @classmethod
-    def parse_raw(  # type: ignore
+    def model_validate_yaml(  # type: ignore
         cls,
         b: str | bytes,
         *,
@@ -64,5 +64,4 @@ class YAMLBaseModel(BaseModel):
             YAMLBaseModel: Parsed instance.
         """
         obj = yaml.safe_load(b) if content_type in YAML_CONTENT_TYPES else json.loads(b)
-
         return cls.model_validate(obj, strict=strict, context=context)

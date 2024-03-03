@@ -5,7 +5,7 @@ from azuma import schemas
 
 @pytest.fixture
 def nested_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:
@@ -34,7 +34,7 @@ def test_nested_dict(event: dict, expected: bool, nested_rule: schemas.Rule):
 
 @pytest.fixture
 def nested_with_wildcard_rule():
-    return schemas.Rule.parse_raw(
+    return schemas.Rule.model_validate_yaml(
         """
 title: sample signature
 logsource:

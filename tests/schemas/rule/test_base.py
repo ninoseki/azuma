@@ -56,28 +56,36 @@ def complicated_condition(base_signature: str):
 def test_or_search(event: dict, base_signature: str):
     # Test a signature where the search block is just a list (or operation)
     # Also has an example of the ? wildcard embedded
-    rule = schemas.Rule.parse_raw(base_signature + "    condition: true_expected")
+    rule = schemas.Rule.model_validate_yaml(
+        base_signature + "    condition: true_expected"
+    )
     assert rule.match(event) is True
 
 
 def test_value_or_search(event: dict, base_signature: str):
     # Test a signature where the search block has a list of values (or across those values)
-    rule = schemas.Rule.parse_raw(base_signature + "    condition: true_also_expected")
+    rule = schemas.Rule.model_validate_yaml(
+        base_signature + "    condition: true_also_expected"
+    )
     assert rule.match(event) is True
 
 
 def test_value_wildcard_search(event: dict, base_signature: str):
     # has an example of the * wildcard embedded
-    rule = schemas.Rule.parse_raw(base_signature + "    condition: true_cats_expected")
+    rule = schemas.Rule.model_validate_yaml(
+        base_signature + "    condition: true_cats_expected"
+    )
     assert rule.match(event) is True
 
 
 def test_and_search(event: dict, base_signature: str):
     # Test a signature where the search block is just a map (and operation)
-    rule = schemas.Rule.parse_raw(base_signature + "    condition: true_still_expected")
+    rule = schemas.Rule.model_validate_yaml(
+        base_signature + "    condition: true_still_expected"
+    )
     assert rule.match(event) is True
 
 
 def test_complicated_condition(event: dict, complicated_condition: str):
-    rule = schemas.Rule.parse_raw(complicated_condition)
+    rule = schemas.Rule.model_validate_yaml(complicated_condition)
     assert rule.match(event) is True
