@@ -39,7 +39,7 @@ MODIFIER_FUNCTIONS = {
 def process_field_name(field_string: str) -> tuple[str, list[str]]:
     name_and_modifiers = field_string.split("|")
     name = name_and_modifiers.pop(0)
-    modifiers = [_m for _m in name_and_modifiers if _m]
+    modifiers = [m for m in name_and_modifiers if m]
 
     unsupported = set(modifiers) - SUPPORTED_MODIFIERS
     if unsupported:
@@ -161,31 +161,24 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
 
 
 def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
-    out: types.DetectionMap = []
-
-    for raw_key, value in field.items():
+    def map_raw_key_value(raw_key: str, value: Any) -> types.DetectionItem:
         key, modifiers = process_field_name(raw_key)
+
         if value is None:
-            out.append((key, ([None], modifiers)))
-            continue
+            return (key, ([None], modifiers))
 
         if isinstance(value, list):
-            out.append(
+            return (
+                key,
                 (
-                    key,
-                    (
-                        [
-                            apply_modifiers(str(_v), modifiers)
-                            if _v is not None
-                            else None
-                            for _v in value
-                        ],
-                        modifiers,
-                    ),
-                )
+                    [
+                        apply_modifiers(str(v), modifiers) if v is not None else None
+                        for v in value
+                    ],
+                    modifiers,
+                ),
             )
-            continue
 
-        out.append((key, ([apply_modifiers(str(value), modifiers)], modifiers)))
+        return (key, ([apply_modifiers(str(value), modifiers)], modifiers))
 
-    return out
+    return [map_raw_key_value(raw_key, value) for raw_key, value in field.items()]

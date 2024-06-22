@@ -4,7 +4,8 @@ invoke the right sequence of searches into the rule and logic operations.
 """
 
 import pathlib
-import typing as t
+from collections.abc import Callable
+from typing import Any, cast
 
 from lark import Lark, Token, Transformer, Tree
 
@@ -36,18 +37,18 @@ class FactoryTransformer(Transformer):
         return args[0].value
 
     @staticmethod
-    def atom(args: list[t.Callable]):
+    def atom(args: list[Callable]):
         if not all(callable(x) for x in args):
             raise ValueError(args)
 
         return args[0]
 
     @staticmethod
-    def not_rule(args: list[t.Any]):
+    def not_rule(args: list[Any]):
         negate, value = args
 
-        negate = t.cast(Tree | None, negate)
-        value = t.cast(t.Callable, value)
+        negate = cast(Tree | None, negate)
+        value = cast(Callable, value)
 
         assert callable(value)
 
@@ -60,7 +61,7 @@ class FactoryTransformer(Transformer):
         return _negate
 
     @staticmethod
-    def and_rule(args: list[t.Callable]):
+    def and_rule(args: list[Callable]):
         if not all(callable(x) for x in args):
             raise ValueError(args)
 
@@ -73,7 +74,7 @@ class FactoryTransformer(Transformer):
         return _and_operation
 
     @staticmethod
-    def or_rule(args: list[t.Any]):
+    def or_rule(args: list[Callable]):
         if not all(callable(x) for x in args):
             raise ValueError(args)
 
@@ -86,13 +87,13 @@ class FactoryTransformer(Transformer):
         return _or_operation
 
     @staticmethod
-    def pipe_rule(args: t.Any):
+    def pipe_rule(args: list[Callable]):
         return args[0]
 
     @staticmethod
-    def x_of(args: t.Any):
+    def x_of(args: Any):
         # Load the left side of the X of statement
-        count = None
+        count: int | None = None
         if args[0].children[0].type == "NUMBER":
             count = int(args[0].children[0].value)
 

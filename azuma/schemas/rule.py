@@ -7,10 +7,10 @@ from azuma.validators import is_valid_date_format
 from .detection import Detection
 from .log_source import LogSource
 from .related import Related
-from .yaml_model import YAMLBaseModel
+from .yaml_model import YamlBaseModel
 
 
-class Rule(YAMLBaseModel):
+class Rule(YamlBaseModel):
     title: str = Field(
         ...,
         max_length=256,
