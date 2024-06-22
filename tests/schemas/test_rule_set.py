@@ -33,3 +33,10 @@ def test_rules(rule_set: schemas.RuleSet, paths: list[Path]):
 def test_match_all(rule_set: schemas.RuleSet, event: dict, expected: int):
     matched = rule_set.match_all(event)
     assert len(matched) == expected
+
+
+def test_unique(rule_set: schemas.RuleSet):
+    combined = schemas.RuleSet(root=rule_set.root + rule_set.root)
+    unique = combined.unique()
+    assert len(combined.root) != len(unique.root)
+    assert len(rule_set.root) == len(unique.root)
