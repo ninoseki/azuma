@@ -1,13 +1,19 @@
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import Field, RootModel
 
 from .rule import Rule
 
 
-class RuleSet(BaseModel):
-    rules: list[Rule] = Field(default_factory=list)
+class RuleSet(RootModel):
+    root: list[Rule] = Field(default_factory=list)
+
+    def __iter__(self):
+        return iter(self.root)
+
+    def __getitem__(self, item):
+        return self.root[item]
 
     def match_all(self, event: dict[Any, Any]) -> list[Rule]:
         """Check whether an event is matched with the rules
@@ -18,13 +24,7 @@ class RuleSet(BaseModel):
         Returns:
             list[Rule]: A list of matched rules
         """
-        matched: list[Rule] = []
-
-        for rule in self.rules:
-            if rule.match(event):
-                matched.append(rule)
-
-        return matched
+        return [rule for rule in self if rule.match(event)]
 
     @classmethod
     def from_dir(cls, dir: str | Path, *, pattern="*.yml") -> "RuleSet":
@@ -37,8 +37,6 @@ class RuleSet(BaseModel):
         Returns:
             RuleSet: Rule set
         """
-        if isinstance(dir, str):
-            dir = Path(dir)
-
+        dir = Path(dir) if isinstance(dir, str) else dir
         paths = dir.glob(f"**/{pattern}")
-        return cls(rules=[Rule.model_validate_file(p) for p in paths])
+        return cls(root=[Rule.model_validate_file(p) for p in paths])
