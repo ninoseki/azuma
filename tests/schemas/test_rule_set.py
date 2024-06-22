@@ -17,7 +17,7 @@ def paths():
 
 
 def test_rules(rule_set: schemas.RuleSet, paths: list[Path]):
-    assert len(rule_set.rules) == len(paths)
+    assert len(rule_set.root) == len(paths)
 
 
 @pytest.mark.parametrize(
