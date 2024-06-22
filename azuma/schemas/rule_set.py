@@ -26,6 +26,26 @@ class RuleSet(RootModel):
         """
         return [rule for rule in self if rule.match(event)]
 
+    def unique(self) -> "RuleSet":
+        """Returns unique rule set.
+
+        Returns:
+            RuleSet: Rule set
+        """
+        seen: set[str] = set()
+
+        filtered: list[Rule] = []
+        for rule in self.root:
+            if rule.id is None:
+                filtered.append(rule)
+                continue
+
+            if rule.id not in seen:
+                seen.add(rule.id)
+                filtered.append(rule)
+
+        return RuleSet(root=filtered)
+
     @classmethod
     def from_dir(cls, dir: str | Path, *, pattern="*.yml") -> "RuleSet":
         """Load rules from a directory
