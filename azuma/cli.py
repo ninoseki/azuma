@@ -1,7 +1,7 @@
 import glob
 import json
-import typing as t
 from functools import partial
+from typing import Annotated
 
 import typer
 from loguru import logger
@@ -58,10 +58,10 @@ def output(results: dict[str, list[dict]]) -> None:
 
 @app.command()
 def main(
-    path: t.Annotated[
+    path: Annotated[
         str, typer.Argument(help="Path (or glob pattern) to rule YAML file(s)")
     ],
-    target: t.Annotated[
+    target: Annotated[
         str, typer.Argument(help="Path (or glob pattern) to event JSON file(s)")
     ],
 ):

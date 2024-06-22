@@ -8,7 +8,7 @@ from pydantic import BaseModel
 YAML_CONTENT_TYPES = ["text/yaml", "application/x-yaml"]
 
 
-class YAMLBaseModel(BaseModel):
+class YamlBaseModel(BaseModel):
     """BaseModel with YAML support"""
 
     @classmethod
