@@ -1,11 +1,8 @@
-import json
 from pathlib import Path
 from typing import Any
 
 import yaml
 from pydantic import BaseModel
-
-YAML_CONTENT_TYPES = ["text/yaml", "application/x-yaml"]
 
 
 class YamlBaseModel(BaseModel):
@@ -16,7 +13,6 @@ class YamlBaseModel(BaseModel):
         cls,
         path: str | Path,
         *,
-        content_type: str | None = "text/yaml",
         encoding: str = "utf8",
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
@@ -25,7 +21,6 @@ class YamlBaseModel(BaseModel):
 
         Args:
             path (str | Path): Path to a file.
-            content_type (str | None, optional): Content type. Defaults to "text/yaml".
             encoding (str, optional): Encoding. Defaults to "utf8".
             strict (bool | None, optional): Strict or not. Defaults to None.
             context (dict[str, Any] | None, optional): Context. Defaults to None.
@@ -36,11 +31,7 @@ class YamlBaseModel(BaseModel):
         with open(path, encoding=encoding) as f:
             text = f.read()
 
-            if content_type in YAML_CONTENT_TYPES:
-                obj = yaml.safe_load(text)
-            else:
-                obj = json.loads(text)
-
+        obj = yaml.safe_load(text)
         return cls.model_validate(obj, strict=strict, context=context)
 
     @classmethod
@@ -48,7 +39,6 @@ class YamlBaseModel(BaseModel):
         cls,
         b: str | bytes,
         *,
-        content_type: str | None = "text/yaml",
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
     ):
@@ -63,5 +53,5 @@ class YamlBaseModel(BaseModel):
         Returns:
             YAMLBaseModel: Parsed instance.
         """
-        obj = yaml.safe_load(b) if content_type in YAML_CONTENT_TYPES else json.loads(b)
+        obj = yaml.safe_load(b)
         return cls.model_validate(obj, strict=strict, context=context)
