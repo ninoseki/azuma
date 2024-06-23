@@ -1,13 +1,14 @@
 import glob
+import itertools
 import json
+import sys
 from functools import partial
-from typing import Annotated
+from typing import Annotated, cast
 
 import typer
-from loguru import logger
 from pydantic import BaseModel, Field, ValidationError
 from returns.functions import raise_exception
-from returns.pipeline import flow
+from returns.pipeline import flow, is_successful
 from returns.pointfree import bind
 from returns.result import ResultE, safe
 
@@ -21,43 +22,21 @@ class ScanResult(BaseModel):
     matched: bool = Field(...)
 
 
-@safe
-def load_rules(path: str) -> list[schemas.Rule]:
-    rules: list[schemas.Rule] = []
+def expand_path(path: str | list[str]) -> set[str]:
+    if isinstance(path, str):
+        path = [path]
 
-    for path_ in glob.glob(path):
-        try:
-            rules.append(schemas.Rule.parse_file(path_))
-        except ValidationError:
-            logger.info(f"Failed to load {path_}")
-
-    return rules
+    expanded = [glob.glob(p) for p in path]
+    return set(itertools.chain.from_iterable(expanded))
 
 
-@safe
-def scan(rules: list[schemas.Rule], *, target: str) -> dict[str, list[dict]]:
-    memo: dict[str, list[dict]] = {}
-    for rule in rules:
-        results: list[ScanResult] = []
-
-        for path in glob.glob(target):
-            with open(path) as f:
-                data = json.loads(f.read())
-                results.append(ScanResult(path=path, matched=rule.match(data)))
-
-        key = f"{rule.title} ({rule.id or 'N/A'})"
-        memo[key] = [r.model_dump() for r in results]
-
-    return memo
-
-
-@safe
-def output(results: dict[str, list[dict]]) -> None:
-    print(json.dumps(results))  # noqa: T201
+@safe(exceptions=(ValidationError,))
+def load_rule(path: str) -> schemas.Rule:
+    return schemas.Rule.model_validate_file(path)
 
 
 @app.command()
-def main(
+def scan(
     path: Annotated[
         str, typer.Argument(help="Path (or glob pattern) to rule YAML file(s)")
     ],
@@ -65,11 +44,59 @@ def main(
         str, typer.Argument(help="Path (or glob pattern) to event JSON file(s)")
     ],
 ):
-    task: ResultE[None] = flow(
+    @safe
+    def load_rules(path: str) -> list[schemas.Rule]:
+        results = [load_rule(path_) for path_ in expand_path(path)]
+        rules = [r.value_or(None) for r in results if r]
+        return [r for r in rules if r is not None]
+
+    @safe
+    def scan(rules: list[schemas.Rule], *, target: str) -> dict[str, list[dict]]:
+        memo: dict[str, list[dict]] = {}
+        for rule in rules:
+            results: list[ScanResult] = []
+
+            for path in expand_path(target):
+                with open(path) as f:
+                    data = json.loads(f.read())
+                    results.append(ScanResult(path=path, matched=rule.match(data)))
+
+            key = f"{rule.title} ({rule.id or 'N/A'})"
+            memo[key] = [r.model_dump() for r in results]
+
+        return memo
+
+    @safe
+    def output(results: dict[str, list[dict]]) -> None:
+        print(json.dumps(results))  # noqa: T201
+
+    result: ResultE[None] = flow(
         path, load_rules, bind(partial(scan, target=target)), bind(output)
     )
-    task.alt(raise_exception)
+    result.alt(raise_exception)
+
+
+@app.command()
+def lint(
+    path: Annotated[
+        list[str],
+        typer.Argument(help="Path(s) (or glob pattern(s)) to rule YAML file(s)"),
+    ],
+):
+    memo: dict[str, ValidationError] = {}
+    for path_ in expand_path(path):
+        result: ResultE[schemas.Rule] = flow(path_, load_rule)
+        if not is_successful(result):
+            memo[path_] = cast(ValidationError, result.failure())
+
+    if not memo:
+        return
+
+    for path_, error in memo.items():
+        print(f"{path_} has {error}\n", file=sys.stderr)  # noqa: T201
+
+    sys.exit(1)
 
 
 if __name__ == "__main__":
-    typer.run(main)
+    typer.run(app())

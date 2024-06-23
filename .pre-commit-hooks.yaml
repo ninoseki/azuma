@@ -1,0 +1,5 @@
+- id: azuma
+  name: azuma
+  entry: azuma lint
+  language: python
+  types: [yaml]

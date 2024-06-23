@@ -17,7 +17,7 @@ class YamlBaseModel(BaseModel):
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
     ):
-        """Parse a file.
+        """Parse a YAML file.
 
         Args:
             path (str | Path): Path to a file.
@@ -26,7 +26,7 @@ class YamlBaseModel(BaseModel):
             context (dict[str, Any] | None, optional): Context. Defaults to None.
 
         Returns:
-            YAMLBaseModel: Parsed instance.
+            YamlBaseModel: Parsed instance.
         """
         with open(path, encoding=encoding) as f:
             text = f.read()
@@ -42,16 +42,15 @@ class YamlBaseModel(BaseModel):
         strict: bool | None = None,
         context: dict[str, Any] | None = None,
     ):
-        """Parse a raw text.
+        """Parse a YAML text.
 
         Args:
             b (str | bytes): String or bytes.
-            content_type (str | None, optional): Content type. Defaults to "text/yaml".
             strict (bool | None, optional): Strict or not. Defaults to None.
             context (dict[str, Any] | None, optional): Context. Defaults to None.
 
         Returns:
-            YAMLBaseModel: Parsed instance.
+            YamlBaseModel: Parsed instance.
         """
         obj = yaml.safe_load(b)
         return cls.model_validate(obj, strict=strict, context=context)
