@@ -47,8 +47,7 @@ def scan(
     @safe
     def load_rules(path: str) -> list[schemas.Rule]:
         results = [load_rule(path_) for path_ in expand_path(path)]
-        rules = [r.value_or(None) for r in results if r]
-        return [r for r in rules if r is not None]
+        return [result.alt(raise_exception).unwrap() for result in results]
 
     @safe
     def scan(rules: list[schemas.Rule], *, target: str) -> dict[str, list[dict]]:
@@ -61,7 +60,7 @@ def scan(
                     data = json.loads(f.read())
                     results.append(ScanResult(path=path, matched=rule.match(data)))
 
-            key = f"{rule.title} ({rule.id or 'N/A'})"
+            key = rule.id or rule.title
             memo[key] = [r.model_dump() for r in results]
 
         return memo
