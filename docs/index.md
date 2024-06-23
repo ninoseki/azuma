@@ -6,7 +6,7 @@ Note: This is a forked version of [CybercentreCanada/pysigma](https://github.com
 
 ## Requirements
 
-- Python 3.10
+- Python 3.10+
 
 ## Installation
 
@@ -47,28 +47,84 @@ rule_set.match_all({...})
 
 ## CLI
 
+### Scan
+
 ```bash
-$ azuma --help
+$ azuma scan --help
 
- Usage: azuma [OPTIONS] PATH TARGET
+ Usage: azuma scan [OPTIONS] PATH TARGET
 
-╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────╮
-│ *    path        TEXT  Path (or glob pattern) to rule YAML file(s) [default: None] [required]           │
-│ *    target      TEXT  Path (or glob pattern) to event JSON file(s) [default: None] [required]          │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
-╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────╮
-│ --install-completion          Install completion for the current shell.                                 │
-│ --show-completion             Show completion for the current shell, to copy it or customize the        │
-│                               installation.                                                             │
-│ --help                        Show this message and exit.                                               │
-╰─────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    path        TEXT  Path (or glob pattern) to rule YAML file(s)           │
+│                        [default: None]                                       │
+│                        [required]                                            │
+│ *    target      TEXT  Path (or glob pattern) to event JSON file(s)          │
+│                        [default: None]                                       │
+│                        [required]                                            │
+╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
 ```bash
 # Scan by single rule & single event file
-$ azuma rule.yml event.json
+$ azuma scan rule.yml event.json
 # Scan by multiple rules & multiple event files
-$ azuma "rules/*.yml" "events/*.json"
+$ azuma scan "rules/*.yml" "events/*.json"
+```
+
+### Lint
+
+```bash
+$ azuma lint --help
+
+ Usage: azuma lint [OPTIONS] PATH...
+
+╭─ Arguments ──────────────────────────────────────────────────────────────────╮
+│ *    path      PATH...  Path(s) (or glob pattern(s)) to rule YAML file(s)    │
+│                         [default: None]                                      │
+│                         [required]                                           │
+╰──────────────────────────────────────────────────────────────────────────────╯
+```
+
+## Lint With Hook Managers
+
+### [pre-commit/pre-commit](https://github./pre-commit/pre-commit)
+
+```yaml
+- repo: https://github.com/ninoseki/azuma
+  rev: v0.4.0
+  hooks:
+    - id: azuma
+```
+
+If you want to lint only YAML files in `rules` directory:
+
+```yaml
+- repo: https://github.com/ninoseki/azuma
+  rev: v0.4.0
+  hooks:
+    - id: azuma
+      files: rules/.*\.(yml|yaml)$
+```
+
+### [evilmartians/lefthook](https://github.com/evilmartians/lefthook)
+
+```yaml
+pre-commit:
+  commands:
+    azuma:
+      run: azuma lint {staged_files}
+      glob: "*.{yaml,yml}"
+```
+
+If you want to lint only YAML files in `rules` directory:
+
+```yaml
+pre-commit:
+  commands:
+    azuma:
+      root: "rules/"
+      run: azuma lint {staged_files}
+      glob: "*.{yaml,yml}"
 ```
 
 ## Known limitations

@@ -4,4 +4,4 @@
 
 ::: azuma.schemas.RuleSet
 
-::: azuma.schemas.yaml_model.YAMLBaseModel
+::: azuma.schemas.yaml_model.YamlBaseModel
