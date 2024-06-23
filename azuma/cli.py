@@ -77,7 +77,7 @@ def scan(
 
 
 @app.command()
-def lint(
+def validate(
     path: Annotated[
         list[str],
         typer.Argument(help="Path(s) (or glob pattern(s)) to rule YAML file(s)"),
