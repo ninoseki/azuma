@@ -71,12 +71,12 @@ $ azuma scan rule.yml event.json
 $ azuma scan "rules/*.yml" "events/*.json"
 ```
 
-### Lint
+### Validate
 
 ```bash
-$ azuma lint --help
+$ azuma validate --help
 
- Usage: azuma lint [OPTIONS] PATH...
+ Usage: azuma validate [OPTIONS] PATH...
 
 ╭─ Arguments ──────────────────────────────────────────────────────────────────╮
 │ *    path      PATH...  Path(s) (or glob pattern(s)) to rule YAML file(s)    │
@@ -85,7 +85,7 @@ $ azuma lint --help
 ╰──────────────────────────────────────────────────────────────────────────────╯
 ```
 
-## Lint With Hook Managers
+## Validate With Hook Managers
 
 ### [pre-commit/pre-commit](https://github./pre-commit/pre-commit)
 
@@ -96,7 +96,7 @@ $ azuma lint --help
     - id: azuma
 ```
 
-If you want to lint only YAML files in `rules` directory:
+If you want to validate only YAML files in `rules` directory:
 
 ```yaml
 - repo: https://github.com/ninoseki/azuma
@@ -112,18 +112,18 @@ If you want to lint only YAML files in `rules` directory:
 pre-commit:
   commands:
     azuma:
-      run: azuma lint {staged_files}
+      run: azuma validate {staged_files}
       glob: "*.{yaml,yml}"
 ```
 
-If you want to lint only YAML files in `rules` directory:
+If you want to validate only YAML files in `rules` directory:
 
 ```yaml
 pre-commit:
   commands:
     azuma:
       root: "rules/"
-      run: azuma lint {staged_files}
+      run: azuma validate {staged_files}
       glob: "*.{yaml,yml}"
 ```
 

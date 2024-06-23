@@ -1,5 +1,5 @@
 - id: azuma
   name: azuma
-  entry: azuma lint
+  entry: azuma validate
   language: python
   types: [yaml]
