@@ -10,6 +10,7 @@ repository = "https://github.com/ninoseki/azuma"
 
 [tool.poetry.dependencies]
 python = "^3.10"
+braceexpand = "^0.1.7"
 lark = { extras = ["interegular"], version = ">=1.1,<2.0" }
 loguru = ">=0.7,<1.0"
 pydantic = ">=2.7,<3.0"
