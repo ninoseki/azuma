@@ -26,6 +26,17 @@ files = [
 dev = ["freezegun (>=1.0,<2.0)", "pytest (>=6.0)", "pytest-cov"]
 
 [[package]]
+name = "braceexpand"
+version = "0.1.7"
+description = "Bash-style brace expansion for Python"
+optional = false
+python-versions = "*"
+files = [
+    {file = "braceexpand-0.1.7-py2.py3-none-any.whl", hash = "sha256:91332d53de7828103dcae5773fb43bc34950b0c8160e35e0f44c4427a3b85014"},
+    {file = "braceexpand-0.1.7.tar.gz", hash = "sha256:e6e539bd20eaea53547472ff94f4fb5c3d3bf9d0a89388c4b56663aba765f705"},
+]
+
+[[package]]
 name = "certifi"
 version = "2024.6.2"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -1434,4 +1445,4 @@ dev = ["black (>=19.3b0)", "pytest (>=4.6.2)"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.10"
-content-hash = "1d2a974ccf91e8be996554683a4a35e93925ffe9ea3908f02dd45fbd92d96843"
+content-hash = "a3d4baa949c392b878064871ee34e556360df388803c320b705225502d5a1dd4"

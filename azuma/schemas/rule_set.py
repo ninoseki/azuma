@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import Field, RootModel
 
+from azuma.utils import expand_path
+
 from .rule import Rule
 
 
@@ -47,16 +49,16 @@ class RuleSet(RootModel):
         return RuleSet(root=filtered)
 
     @classmethod
-    def from_dir(cls, dir: str | Path, *, pattern="*.yml") -> "RuleSet":
+    def from_dir(cls, dir: str | Path, *, pattern="*.{yml,yaml}") -> "RuleSet":
         """Load rules from a directory
 
         Args:
             dir (str | Path): Directory
-            pattern (str, optional): YAML file pattern. Defaults to "*.yml".
+            pattern (str, optional): YAML file pattern. Defaults to "*.{yml,yaml}".
 
         Returns:
             RuleSet: Rule set
         """
         dir = Path(dir) if isinstance(dir, str) else dir
-        paths = dir.glob(f"**/{pattern}")
-        return cls(root=[Rule.model_validate_file(p) for p in paths])
+        expanded = expand_path(str(dir.joinpath(pattern)))
+        return cls(root=[Rule.model_validate_file(p) for p in expanded])

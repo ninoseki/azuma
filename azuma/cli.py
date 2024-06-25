@@ -1,5 +1,3 @@
-import glob
-import itertools
 import json
 import sys
 from functools import partial
@@ -13,6 +11,7 @@ from returns.pointfree import bind
 from returns.result import ResultE, safe
 
 from azuma import schemas
+from azuma.utils import expand_path
 
 app = typer.Typer()
 
@@ -20,14 +19,6 @@ app = typer.Typer()
 class ScanResult(BaseModel):
     path: str = Field(...)
     matched: bool = Field(...)
-
-
-def expand_path(path: str | list[str]) -> set[str]:
-    if isinstance(path, str):
-        path = [path]
-
-    expanded = [glob.glob(p) for p in path]
-    return set(itertools.chain.from_iterable(expanded))
 
 
 @safe(exceptions=(ValidationError,))
