@@ -1,9 +1,8 @@
 from pathlib import Path
 from typing import Any
 
+import senkawa
 from pydantic import Field, RootModel
-
-from azuma.utils import expand_path
 
 from .rule import Rule
 
@@ -60,5 +59,5 @@ class RuleSet(RootModel):
             RuleSet: Rule set
         """
         dir = Path(dir) if isinstance(dir, str) else dir
-        expanded = expand_path(str(dir.joinpath(pattern)))
+        expanded = senkawa.glob(str(dir.joinpath(pattern)))
         return cls(root=[Rule.model_validate_file(p) for p in expanded])

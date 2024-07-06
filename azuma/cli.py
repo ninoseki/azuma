@@ -1,8 +1,10 @@
+import itertools
 import json
 import sys
 from functools import partial
 from typing import Annotated, cast
 
+import senkawa
 import typer
 from pydantic import BaseModel, Field, ValidationError
 from returns.functions import raise_exception
@@ -11,7 +13,6 @@ from returns.pointfree import bind
 from returns.result import ResultE, safe
 
 from azuma import schemas
-from azuma.utils import expand_path
 
 app = typer.Typer()
 
@@ -37,7 +38,7 @@ def scan(
 ):
     @safe
     def load_rules(path: str) -> list[schemas.Rule]:
-        results = [load_rule(path_) for path_ in expand_path(path)]
+        results = [load_rule(path_) for path_ in senkawa.glob(path)]
         return [result.alt(raise_exception).unwrap() for result in results]
 
     @safe
@@ -46,7 +47,7 @@ def scan(
         for rule in rules:
             results: list[ScanResult] = []
 
-            for path in expand_path(target):
+            for path in senkawa.glob(target):
                 with open(path) as f:
                     data = json.loads(f.read())
                     results.append(ScanResult(path=path, matched=rule.match(data)))
@@ -74,7 +75,7 @@ def validate(
     ],
 ):
     memo: dict[str, ValidationError] = {}
-    for path_ in expand_path(path):
+    for path_ in itertools.chain.from_iterable([senkawa.glob(p) for p in path]):
         result: ResultE[schemas.Rule] = flow(path_, load_rule)
         if not is_successful(result):
             memo[path_] = cast(ValidationError, result.failure())

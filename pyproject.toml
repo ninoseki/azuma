@@ -10,29 +10,29 @@ repository = "https://github.com/ninoseki/azuma"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-braceexpand = "^0.1.7"
 lark = { extras = ["interegular"], version = ">=1.1,<2.0" }
 loguru = ">=0.7,<1.0"
 pydantic = ">=2.7,<3.0"
 pyyaml = ">=6.0,<7.0"
 regex = ">=2024.5.15"
 returns = ">=0.22,<1.0"
+senkawa = "^0.1.0"
 typer = ">=0.12,<1.0"
 
 [tool.poetry.group.dev.dependencies]
 ci-py = "^1.0"
 gitpython = "^3.1.43"
-mypy = "^1.10.0"
+mypy = "^1.10.1"
 pre-commit = "^3.7.1"
 pytest = "^8.2.2"
 pytest-pretty = "^1.2"
 pytest-randomly = "^3.15"
-ruff = "^0.4.10"
+ruff = "^0.5.1"
 types-pyyaml = "^6.0.12"
 
 [tool.poetry.group.docs.dependencies]
 mkdocs = "^1.6.0"
-mkdocs-material = "^9.5.27"
+mkdocs-material = "^9.5.28"
 mkdocstrings = { extras = ["python"], version = "^0.25.1" }
 
 [tool.poetry.scripts]
