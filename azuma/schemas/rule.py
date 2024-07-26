@@ -66,7 +66,7 @@ class Rule(YamlBaseModel):
         description="References to the source that the rule was derived from. These could be blog articles, technical papers, presentations or even tweets.",
     )
     tags: list[str] | None = Field(default=None)
-    flaivepositives: list[str] | None = Field(
+    falsepositives: list[str] | None = Field(
         default=None, description="A list of known false positives that may occur."
     )
     fields: list[str] | None = Field(
