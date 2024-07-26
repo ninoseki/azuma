@@ -78,11 +78,58 @@ $ azuma validate --help
 
  Usage: azuma validate [OPTIONS] PATH...
 
-╭─ Arguments ──────────────────────────────────────────────────────────────────╮
-│ *    path      PATH...  Path(s) (or glob pattern(s)) to rule YAML file(s)    │
-│                         [default: None]                                      │
-│                         [required]                                           │
-╰──────────────────────────────────────────────────────────────────────────────╯
+╭─ Arguments ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ *    path      PATH...  Path(s) (or glob pattern(s)) to rule YAML file(s) [default: None] [required]                                                        │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+╭─ Options ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│ --check-id                --no-check-id                  Check for missing 'id' field [default: no-check-id]                                                │
+│ --check-license           --no-check-license             Check for missing 'license' field [default: no-check-license]                                      │
+│ --check-author            --no-check-author              Check for missing 'author' field [default: no-check-author]                                        │
+│ --check-date              --no-check-date                Check for missing 'date' field [default: no-check-date]                                            │
+│ --check-modified          --no-check-modified            Check for missing 'modified' field [default: no-check-modified]                                    │
+│ --check-description       --no-check-description         Check for missing 'description' field [default: no-check-description]                              │
+│ --check-status            --no-check-status              Check for missing 'status' field [default: no-check-status]                                        │
+│ --check-level             --no-check-level               Check for missing 'level' field [default: no-check-level]                                          │
+│ --check-references        --no-check-references          Check for missing 'references' field [default: no-check-references]                                │
+│ --check-tags              --no-check-tags                Check for missing 'tags' field [default: no-check-tags]                                            │
+│ --check-falsepositives    --no-check-falsepositives      Check for missing 'falsepositives' field [default: no-check-falsepositives]                        │
+│ --check-fields            --no-check-fields              Check for missing 'fields' field [default: no-check-fields]                                        │
+│ --check-related           --no-check-related             Check for missing 'related' field [default: no-check-related]                                      │
+│ --check-all               --no-check-all                 Check for all the missing optional fields [default: no-check-all]                                  │
+│ --help                                                   Show this message and exit.                                                                        │
+╰─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+```
+
+`check` option is for checking missing optional field such as `id`.
+
+```bash
+$ azuma validate /path/to/yml --check-id
+.... has 1 validation error for Field required
+id
+  Field required [type=missing, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.7/v/missing
+```
+
+`--check-all` checks presences of all the optional fields.
+
+```bash
+$ azuma validate /path/to/yml --check-id
+... has 5 validation errors for Field required
+license
+  Field required [type=missing, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.7/v/missing
+id
+  Field required [type=missing, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.7/v/missing
+modified
+  Field required [type=missing, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.7/v/missing
+author
+  Field required [type=missing, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.7/v/missing
+related
+  Field required [type=missing, input_value=None, input_type=NoneType]
+    For further information visit https://errors.pydantic.dev/2.7/v/missing
 ```
 
 ## Validate With Hook Managers
