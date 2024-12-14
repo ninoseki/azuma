@@ -5,4 +5,4 @@ from pydantic import BaseModel, Field
 
 class Related(BaseModel):
     id: str = Field(...)
-    type: Literal["derived", "obsoletes", "merged", "renamed", "similar"] = Field(...)
+    type: Literal["derived", "merged", "renamed", "similar", "obsolete"] = Field(...)
