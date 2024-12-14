@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, Literal
 
 from pydantic import Field, field_validator
@@ -38,10 +39,10 @@ class Rule(YamlBaseModel):
         default=None,
         description="Creator of the rule. (can be a name, nickname, twitter handle…etc)",
     )
-    date: str | None = Field(
+    date: str | datetime.date | None = Field(
         default=None, description="Creation date of the rule. Use the format YYYY/MM/DD"
     )
-    modified: str | None = Field(
+    modified: str | datetime.date | None = Field(
         default=None,
         description="Last modification date of the rule. Use the format YYYY/MM/DD",
     )
