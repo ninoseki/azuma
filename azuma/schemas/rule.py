@@ -1,3 +1,4 @@
+import datetime
 from typing import Any, Literal
 
 from pydantic import Field, field_validator
@@ -76,11 +77,14 @@ class Rule(YamlBaseModel):
 
     related: list[Related] | None = Field(default=None)
 
-    @field_validator("date", "modified")
+    @field_validator("date", "modified", mode="before")
     @classmethod
-    def validate_date_format(cls, v: str | None):
+    def validate_date_format(cls, v: str | datetime.date | None) -> str | None:
         if v is None:
             return v
+
+        if isinstance(v, datetime.date):
+            return v.strftime("%Y/%m/%d")
 
         if not is_valid_date_format(v):
             raise ValueError("Use YYYY/MM/DD format")
