@@ -13,7 +13,7 @@ from returns.pipeline import flow, is_successful
 from returns.pointfree import bind
 from returns.result import ResultE, safe
 
-from azuma import schemas
+from azuma import __version__, schemas
 
 app = typer.Typer()
 
@@ -242,6 +242,11 @@ def validate(
         print(f"{path_} has {error}\n", file=sys.stderr)  # noqa: T201
 
     sys.exit(1)
+
+
+@app.command()
+def version():
+    print(__version__)  # noqa: T201
 
 
 if __name__ == "__main__":
