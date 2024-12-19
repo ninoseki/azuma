@@ -8,18 +8,19 @@ from azuma.exceptions import UnsupportedFeatureError
 
 # TODO We need to support the rest of them
 SUPPORTED_MODIFIERS = {
-    "contains",
     "all",
     "base64",
-    # 'base64offset'
+    "cased",
+    "contains",
     "endswith",
-    "startswith",
-    # 'utf16le',
-    # 'utf16be',
-    # 'wide',
-    # 'utf16',
     "re",
-    # 'windash'
+    "startswith",
+    # 'base64offset'
+    # 'utf16',
+    # 'utf16be',
+    # 'utf16le',
+    # 'wide',
+    # 'windash',
 }
 
 
@@ -112,7 +113,7 @@ def sigma_string_to_regex(original_value: str) -> str:
 
         raise ValueError(f"Could not parse string matching pattern: {original_value}")
 
-    return "".join(full_content)  # Sigma strings are case insensitive
+    return "".join(full_content)
 
 
 def get_modified_value(value: str, modifiers: list[str] | None) -> str:
@@ -127,7 +128,7 @@ def get_modified_value(value: str, modifiers: list[str] | None) -> str:
     return value
 
 
-MODIFIER_REGEX_FLAGS = re.IGNORECASE | re.V1 | re.DOTALL
+MODIFIER_REGEX_FLAGS = re.V1 | re.DOTALL
 
 
 def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
@@ -144,14 +145,17 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     if has_re and has_multiple_modifiers:
         raise ValueError("re modifier cannot use along with other modifiers")
 
+    has_cased = "cased" in modifiers
+    flags = MODIFIER_REGEX_FLAGS if has_cased else MODIFIER_REGEX_FLAGS | re.IGNORECASE
+
     if has_re:
-        return re.compile(value, flags=MODIFIER_REGEX_FLAGS)
+        return re.compile(value, flags=flags)
 
     if not ESCAPED_WILDCARD_PATTERN.fullmatch(value):
         # Transform the unescaped wildcards to their regex equivalent
         reg_value = sigma_string_to_regex(value)
         value = get_modified_value(reg_value, modifiers)
-        return re.compile(value, flags=MODIFIER_REGEX_FLAGS)
+        return re.compile(value, flags=flags)
 
     value = get_modified_value(value, modifiers)
     # If we are just doing a full string compare of a raw string, the comparison
