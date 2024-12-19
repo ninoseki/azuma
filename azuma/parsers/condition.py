@@ -27,7 +27,7 @@ class FactoryTransformer(Transformer):
     def search_id(args: list[Token]):
         name = args[0].value
 
-        def match_hits(signature, event):
+        def match_hits(signature: Any, event: Any):
             return match_search_id(signature, event, name)
 
         return match_hits

@@ -5,7 +5,7 @@ description: Detects a Windows program executable started in a suspicious folder
 references:
   - https://twitter.com/GelosSnake/status/934900723426439170
 author: Florian Roth, Patrick Bareiss
-date: 2017/11/27
+date: 2017-11-27
 tags:
   - attack.defense_evasion
   - attack.t1036

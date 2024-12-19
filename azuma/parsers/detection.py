@@ -1,4 +1,5 @@
 import base64
+import ipaddress
 from typing import Any
 
 import regex as re
@@ -6,33 +7,86 @@ import regex as re
 from azuma import types
 from azuma.exceptions import UnsupportedFeatureError
 
+from .utils import replace_placeholders, replace_with_placeholder
+
 # TODO We need to support the rest of them
 SUPPORTED_MODIFIERS = {
-    "contains",
     "all",
     "base64",
-    # 'base64offset'
+    "base64offset",
+    "cased",
+    "cidr",
+    "contains",
     "endswith",
-    "startswith",
-    # 'utf16le',
-    # 'utf16be',
-    # 'wide',
-    # 'utf16',
+    "exists",
+    "gt",
+    "gte",
+    "lt",
+    "lte",
     "re",
-    # 'windash'
+    "startswith",
+    "windash",
+    # 'expand',
+    # 'fieldref',
+    # 'utf16',
+    # 'utf16be',
+    # 'utf16le',
+    # 'wide',
 }
 
 
-def decode_base64(x: str) -> str:
+def base64_modifier(x: str) -> str:
     x = x.replace("\n", "")
     return base64.b64encode(x.encode()).decode()
 
 
+def base64offset_modifier(x: str) -> str:
+    x = x.replace("\n", "")
+
+    start_offsets = (0, 2, 3)
+    end_offsets = (None, -3, -2)
+
+    offsets: list[str] = []
+    for i in range(3):
+        offsets.append(
+            base64.b64encode(i * b" " + x.encode())[
+                start_offsets[i] : end_offsets[(len(x) + i) % 3]
+            ].decode()
+        )
+
+    return f"({'|'.join(offsets)})"
+
+
+WINDASH_PATTERN = re.compile("\\B[-/]\\b")
+
+WINDASH_PLACEHOLDERS = (
+    "-",
+    "/",
+    chr(int("2013", 16)),  # en_dash
+    chr(int("2014", 16)),  # em_dash
+    chr(int("2015", 16)),  # horizontal_bar
+)
+
+
+def windash_generator(x: str):
+    replaced = replace_with_placeholder(x, WINDASH_PATTERN, "_windash")
+
+    for placeholder in WINDASH_PLACEHOLDERS:
+        yield replace_placeholders(replaced, placeholder)
+
+
+def windash_modifier(x: str) -> str:
+    modified = set(windash_generator(x))
+    return f"({'|'.join(modified)})"
+
+
 MODIFIER_FUNCTIONS = {
     "contains": lambda x: f".*{x}.*",
-    "base64": lambda x: decode_base64(x),
+    "base64": lambda x: base64_modifier(x),
+    "base64offset": lambda x: base64offset_modifier(x),
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
+    "windash": lambda x: windash_modifier(x),
 }
 
 
@@ -112,7 +166,7 @@ def sigma_string_to_regex(original_value: str) -> str:
 
         raise ValueError(f"Could not parse string matching pattern: {original_value}")
 
-    return "".join(full_content)  # Sigma strings are case insensitive
+    return "".join(full_content)
 
 
 def get_modified_value(value: str, modifiers: list[str] | None) -> str:
@@ -127,7 +181,7 @@ def get_modified_value(value: str, modifiers: list[str] | None) -> str:
     return value
 
 
-MODIFIER_REGEX_FLAGS = re.IGNORECASE | re.V1 | re.DOTALL
+MODIFIER_REGEX_FLAGS = re.V1 | re.DOTALL
 
 
 def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
@@ -135,6 +189,25 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
     """
+    has_cidr = "cidr" in modifiers
+    if has_cidr:
+        return lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)  # type: ignore
+
+    has_lte = "lte" in modifiers
+    if has_lte:
+        return lambda x: float(x) <= float(value)  # type: ignore
+
+    has_lt = "lt" in modifiers
+    if has_lt:
+        return lambda x: float(x) < float(value)  # type: ignore
+
+    has_gte = "gte" in modifiers
+    if has_gte:
+        return lambda x: float(x) >= float(value)  # type: ignore
+
+    has_gt = "gt" in modifiers
+    if has_gt:
+        return lambda x: float(x) > float(value)  # type: ignore
 
     # If there are wildcards, or we are using the regex modifier, compile the query
     # string to a regex pattern object
@@ -144,25 +217,38 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     if has_re and has_multiple_modifiers:
         raise ValueError("re modifier cannot use along with other modifiers")
 
+    has_cased = "cased" in modifiers
+    has_base64 = "base64" in modifiers or "base64offset" in modifiers
+
+    # don't use re.IGNORECASE if cased modifier is used or base64 modifier is used
+    flags = (
+        MODIFIER_REGEX_FLAGS
+        if (has_cased or has_base64)
+        else MODIFIER_REGEX_FLAGS | re.IGNORECASE
+    )
+
     if has_re:
-        return re.compile(value, flags=MODIFIER_REGEX_FLAGS)
+        return re.compile(value, flags=flags)
 
     if not ESCAPED_WILDCARD_PATTERN.fullmatch(value):
         # Transform the unescaped wildcards to their regex equivalent
         reg_value = sigma_string_to_regex(value)
         value = get_modified_value(reg_value, modifiers)
-        return re.compile(value, flags=MODIFIER_REGEX_FLAGS)
+        return re.compile(value, flags=flags)
 
     value = get_modified_value(value, modifiers)
-    # If we are just doing a full string compare of a raw string, the comparison
-    # is case-insensitive in sigma, so all direct string comparisons will be lowercase.
-    value = str(value).replace("\\*", "*").replace("\\?", "?")
-    return value.lower()
+    return str(value).replace("\\*", "*").replace("\\?", "?")
 
 
 def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
     def map_raw_key_value(raw_key: str, value: Any) -> types.DetectionItem:
         key, modifiers = process_field_name(raw_key)
+
+        has_exists = "exists" in modifiers
+        if has_exists and value is None:
+            # NOTE: value should not be a list when exists modifier is used
+            # NOTE: use "*" to check whether a field exists or not
+            return (key, ([apply_modifiers("*", [])], modifiers))
 
         if value is None:
             return (key, ([None], modifiers))

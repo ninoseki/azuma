@@ -40,11 +40,11 @@ class Rule(YamlBaseModel):
         description="Creator of the rule. (can be a name, nickname, twitter handle…etc)",
     )
     date: str | None = Field(
-        default=None, description="Creation date of the rule. Use the format YYYY/MM/DD"
+        default=None, description="Creation date of the rule. Use the format YYYY-MM-DD"
     )
     modified: str | None = Field(
         default=None,
-        description="Last modification date of the rule. Use the format YYYY/MM/DD",
+        description="Last modification date of the rule. Use the format YYYY-MM-DD",
     )
     description: str | None = Field(
         default=None,
@@ -84,10 +84,10 @@ class Rule(YamlBaseModel):
             return v
 
         if isinstance(v, datetime.date):
-            return v.strftime("%Y/%m/%d")
+            return v.strftime("%Y-%m-%d")
 
         if not is_valid_date_format(v):
-            raise ValueError("Use YYYY/MM/DD format")
+            raise ValueError("Use YYYY-MM-DD format")
 
         return v
 
