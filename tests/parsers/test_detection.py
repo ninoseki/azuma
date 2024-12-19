@@ -1,7 +1,7 @@
 import pytest
 import regex as re
 
-from azuma.parsers.detection import sigma_string_to_regex
+from azuma.parsers.detection import base64offset_modifier, sigma_string_to_regex
 
 
 @pytest.mark.parametrize(
@@ -35,3 +35,9 @@ def test_sigma_string_to_regex(v: str, expected: str):
 )
 def test_sigma_string_to_regex_with_fullmatch(v: str, expected: str):
     assert re.compile(sigma_string_to_regex(v)).fullmatch(expected)
+
+
+def test_base64offset_modifier():
+    assert (
+        base64offset_modifier("/bin/bash") == "(L2Jpbi9iYXNo|9iaW4vYmFza|vYmluL2Jhc2)"
+    )

@@ -186,7 +186,6 @@ pre-commit:
 
 The following modifiers are not supported.
 
-- base64offset
 - expand
 - fieldref
 - utf16
@@ -199,6 +198,7 @@ In other words, the following value modifiers are supported.
 
 - all
 - base64
+- base64offset
 - cased
 - cidr
 - contains

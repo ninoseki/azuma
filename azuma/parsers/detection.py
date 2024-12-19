@@ -11,6 +11,7 @@ from azuma.exceptions import UnsupportedFeatureError
 SUPPORTED_MODIFIERS = {
     "all",
     "base64",
+    "base64offset",
     "cased",
     "cidr",
     "contains",
@@ -22,7 +23,6 @@ SUPPORTED_MODIFIERS = {
     "lte",
     "re",
     "startswith",
-    # 'base64offset'
     # 'expand',
     # 'fieldref',
     # 'utf16',
@@ -33,14 +33,32 @@ SUPPORTED_MODIFIERS = {
 }
 
 
-def decode_base64(x: str) -> str:
+def base64_modifier(x: str) -> str:
     x = x.replace("\n", "")
     return base64.b64encode(x.encode()).decode()
 
 
+def base64offset_modifier(x: str) -> str:
+    x = x.replace("\n", "")
+
+    start_offsets = (0, 2, 3)
+    end_offsets = (None, -3, -2)
+
+    offsets: list[str] = []
+    for i in range(3):
+        offsets.append(
+            base64.b64encode(i * b" " + x.encode())[
+                start_offsets[i] : end_offsets[(len(x) + i) % 3]
+            ].decode()
+        )
+
+    return f"({'|'.join(offsets)})"
+
+
 MODIFIER_FUNCTIONS = {
     "contains": lambda x: f".*{x}.*",
-    "base64": lambda x: decode_base64(x),
+    "base64": lambda x: base64_modifier(x),
+    "base64offset": lambda x: base64offset_modifier(x),
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
 }
@@ -174,7 +192,14 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
         raise ValueError("re modifier cannot use along with other modifiers")
 
     has_cased = "cased" in modifiers
-    flags = MODIFIER_REGEX_FLAGS if has_cased else MODIFIER_REGEX_FLAGS | re.IGNORECASE
+    has_base64 = "base64" in modifiers or "base64offset" in modifiers
+
+    # don't use re.IGNORECASE if cased modifier is used or base64 modifier is used
+    flags = (
+        MODIFIER_REGEX_FLAGS
+        if (has_cased or has_base64)
+        else MODIFIER_REGEX_FLAGS | re.IGNORECASE
+    )
 
     if has_re:
         return re.compile(value, flags=flags)
