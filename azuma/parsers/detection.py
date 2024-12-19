@@ -186,10 +186,7 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
         return re.compile(value, flags=flags)
 
     value = get_modified_value(value, modifiers)
-    # If we are just doing a full string compare of a raw string, the comparison
-    # is case-insensitive in sigma, so all direct string comparisons will be lowercase.
-    value = str(value).replace("\\*", "*").replace("\\?", "?")
-    return value.lower()
+    return str(value).replace("\\*", "*").replace("\\?", "?")
 
 
 def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:

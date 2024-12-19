@@ -41,10 +41,7 @@ def check_pair(event: dict[Any, Any], key: str, value: types.Query) -> bool:
     if callable(value):
         return bool(value(event[key]))  # type: ignore
 
-    # Because by default sigma string matching is case insensitive, lower the event
-    # string before comparing it. The value string is already lowercase.
-    # TODO potential optimization by caching lowercased event fields
-    return str(event[key]).lower() == value
+    return str(event[key]) == value
 
 
 def find_matches(

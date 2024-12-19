@@ -23,6 +23,8 @@ logsource:
     [
         ({"a": "foo", "b": "bar", "c": "baz"}, True),
         ({"a": "foo"}, True),
+        ({"a": "FOO"}, True),
+        ({"a": "Foo"}, True),
         ({"b": "bar"}, False),
         ({"a": "bar", "b": "foo"}, False),
     ],
