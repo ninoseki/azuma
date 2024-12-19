@@ -13,6 +13,7 @@ SUPPORTED_MODIFIERS = {
     "cased",
     "contains",
     "endswith",
+    "exists",
     "re",
     "startswith",
     # 'base64offset'
@@ -136,7 +137,6 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
     """
-
     # If there are wildcards, or we are using the regex modifier, compile the query
     # string to a regex pattern object
     has_re = "re" in modifiers
@@ -167,6 +167,11 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
 def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
     def map_raw_key_value(raw_key: str, value: Any) -> types.DetectionItem:
         key, modifiers = process_field_name(raw_key)
+
+        has_exists = "exists" in modifiers
+        if has_exists and value is None:
+            # NOTE: use "*" to check whether a field exists or not
+            return (key, ([apply_modifiers("*", [])], modifiers))
 
         if value is None:
             return (key, ([None], modifiers))
