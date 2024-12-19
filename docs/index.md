@@ -192,9 +192,8 @@ The following modifiers are not supported.
 - utf16be
 - utf16le
 - wide
-- windash
 
-In other words, the following value modifiers are supported.
+In other words, the following modifiers are supported.
 
 - all
 - base64
@@ -210,6 +209,7 @@ In other words, the following value modifiers are supported.
 - lte
 - re
 - startswith
+- windash
 
 ### Correlations
 

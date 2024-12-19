@@ -1,7 +1,11 @@
 import pytest
 import regex as re
 
-from azuma.parsers.detection import base64offset_modifier, sigma_string_to_regex
+from azuma.parsers.detection import (
+    base64offset_modifier,
+    sigma_string_to_regex,
+    windash_generator,
+)
 
 
 @pytest.mark.parametrize(
@@ -41,3 +45,13 @@ def test_base64offset_modifier():
     assert (
         base64offset_modifier("/bin/bash") == "(L2Jpbi9iYXNo|9iaW4vYmFza|vYmluL2Jhc2)"
     )
+
+
+def test_windash_generator():
+    assert list(windash_generator(" -param-name ")) == [
+        " -param-name ",
+        " /param-name ",
+        " –param-name ",  # noqa: RUF001
+        " —param-name ",
+        " ―param-name ",
+    ]

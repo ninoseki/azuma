@@ -23,13 +23,13 @@ SUPPORTED_MODIFIERS = {
     "lte",
     "re",
     "startswith",
+    "windash",
     # 'expand',
     # 'fieldref',
     # 'utf16',
     # 'utf16be',
     # 'utf16le',
     # 'wide',
-    # 'windash',
 }
 
 
@@ -55,12 +55,34 @@ def base64offset_modifier(x: str) -> str:
     return f"({'|'.join(offsets)})"
 
 
+WINDASH_PATTERN = re.compile("\\B[-/]\\b")
+
+WINDASH_PLACEHOLDERS = (
+    "-",
+    "/",
+    chr(int("2013", 16)),  # en_dash
+    chr(int("2014", 16)),  # em_dash
+    chr(int("2015", 16)),  # horizontal_bar
+)
+
+
+def windash_generator(x: str):
+    for placeholder in WINDASH_PLACEHOLDERS:
+        yield WINDASH_PATTERN.sub(placeholder, x)
+
+
+def windash_modifier(x: str) -> str:
+    modified = set(windash_generator(x))
+    return f"({'|'.join(modified)})"
+
+
 MODIFIER_FUNCTIONS = {
     "contains": lambda x: f".*{x}.*",
     "base64": lambda x: base64_modifier(x),
     "base64offset": lambda x: base64offset_modifier(x),
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
+    "windash": lambda x: windash_modifier(x),
 }
 
 
