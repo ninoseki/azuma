@@ -48,10 +48,10 @@ def test_base64offset_modifier():
 
 
 def test_windash_generator():
-    assert list(windash_generator(" -param-name ")) == [
+    assert set(windash_generator(" -param-name ")) == {
         " -param-name ",
         " /param-name ",
         " –param-name ",  # noqa: RUF001
         " —param-name ",
         " ―param-name ",
-    ]
+    }

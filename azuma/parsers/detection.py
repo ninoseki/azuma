@@ -7,6 +7,8 @@ import regex as re
 from azuma import types
 from azuma.exceptions import UnsupportedFeatureError
 
+from .utils import replace_placeholders, replace_with_placeholder
+
 # TODO We need to support the rest of them
 SUPPORTED_MODIFIERS = {
     "all",
@@ -67,8 +69,10 @@ WINDASH_PLACEHOLDERS = (
 
 
 def windash_generator(x: str):
+    replaced = replace_with_placeholder(x, WINDASH_PATTERN, "_windash")
+
     for placeholder in WINDASH_PLACEHOLDERS:
-        yield WINDASH_PATTERN.sub(placeholder, x)
+        yield replace_placeholders(replaced, placeholder)
 
 
 def windash_modifier(x: str) -> str:
