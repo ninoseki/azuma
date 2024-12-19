@@ -14,6 +14,10 @@ SUPPORTED_MODIFIERS = {
     "contains",
     "endswith",
     "exists",
+    "gt",
+    "gte",
+    "lt",
+    "lte",
     "re",
     "startswith",
     # 'base64offset'
@@ -175,6 +179,22 @@ def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
 
         if value is None:
             return (key, ([None], modifiers))
+
+        has_lte = "lte" in modifiers
+        if has_lte:
+            return (key, ([lambda x: float(x) <= float(value)], modifiers))  # type: ignore
+
+        has_lt = "lt" in modifiers
+        if has_lt:
+            return (key, ([lambda x: float(x) < float(value)], modifiers))  # type: ignore
+
+        has_gte = "gte" in modifiers
+        if has_gte:
+            return (key, ([lambda x: float(x) >= float(value)], modifiers))  # type: ignore
+
+        has_gt = "gt" in modifiers
+        if has_gt:
+            return (key, ([lambda x: float(x) > float(value)], modifiers))  # type: ignore
 
         if isinstance(value, list):
             return (
