@@ -145,6 +145,26 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
     """
+    has_cidr = "cidr" in modifiers
+    if has_cidr:
+        return lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)  # type: ignore
+
+    has_lte = "lte" in modifiers
+    if has_lte:
+        return lambda x: float(x) <= float(value)  # type: ignore
+
+    has_lt = "lt" in modifiers
+    if has_lt:
+        return lambda x: float(x) < float(value)  # type: ignore
+
+    has_gte = "gte" in modifiers
+    if has_gte:
+        return lambda x: float(x) >= float(value)  # type: ignore
+
+    has_gt = "gt" in modifiers
+    if has_gt:
+        return lambda x: float(x) > float(value)  # type: ignore
+
     # If there are wildcards, or we are using the regex modifier, compile the query
     # string to a regex pattern object
     has_re = "re" in modifiers
@@ -178,37 +198,12 @@ def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
 
         has_exists = "exists" in modifiers
         if has_exists and value is None:
+            # NOTE: value should not be a list when exists modifier is used
             # NOTE: use "*" to check whether a field exists or not
             return (key, ([apply_modifiers("*", [])], modifiers))
 
         if value is None:
             return (key, ([None], modifiers))
-
-        has_lte = "lte" in modifiers
-        if has_lte:
-            return (key, ([lambda x: float(x) <= float(value)], modifiers))  # type: ignore
-
-        has_lt = "lt" in modifiers
-        if has_lt:
-            return (key, ([lambda x: float(x) < float(value)], modifiers))  # type: ignore
-
-        has_gte = "gte" in modifiers
-        if has_gte:
-            return (key, ([lambda x: float(x) >= float(value)], modifiers))  # type: ignore
-
-        has_gt = "gt" in modifiers
-        if has_gt:
-            return (key, ([lambda x: float(x) > float(value)], modifiers))  # type: ignore
-
-        has_cidr = "cidr" in modifiers
-        if has_cidr:
-            return (
-                key,
-                (
-                    [lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)],  # type: ignore
-                    modifiers,
-                ),
-            )
 
         if isinstance(value, list):
             return (
