@@ -1,4 +1,5 @@
 import base64
+import ipaddress
 from typing import Any
 
 import regex as re
@@ -11,6 +12,7 @@ SUPPORTED_MODIFIERS = {
     "all",
     "base64",
     "cased",
+    "cidr",
     "contains",
     "endswith",
     "exists",
@@ -21,6 +23,8 @@ SUPPORTED_MODIFIERS = {
     "re",
     "startswith",
     # 'base64offset'
+    # 'expand',
+    # 'fieldref',
     # 'utf16',
     # 'utf16be',
     # 'utf16le',
@@ -195,6 +199,16 @@ def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
         has_gt = "gt" in modifiers
         if has_gt:
             return (key, ([lambda x: float(x) > float(value)], modifiers))  # type: ignore
+
+        has_cidr = "cidr" in modifiers
+        if has_cidr:
+            return (
+                key,
+                (
+                    [lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)],  # type: ignore
+                    modifiers,
+                ),
+            )
 
         if isinstance(value, list):
             return (
