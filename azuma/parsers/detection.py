@@ -1,6 +1,6 @@
 import base64
 import ipaddress
-from typing import Any
+from typing import Any, Callable, Mapping
 
 import regex as re
 
@@ -25,13 +25,13 @@ SUPPORTED_MODIFIERS = {
     "lte",
     "re",
     "startswith",
+    "wide",
     "windash",
     # 'expand',
     # 'fieldref',
     # 'utf16',
     # 'utf16be',
     # 'utf16le',
-    # 'wide',
 }
 
 
@@ -80,13 +80,14 @@ def windash_modifier(x: str) -> str:
     return f"({'|'.join(modified)})"
 
 
-MODIFIER_FUNCTIONS = {
+MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
     "contains": lambda x: f".*{x}.*",
     "base64": lambda x: base64_modifier(x),
     "base64offset": lambda x: base64offset_modifier(x),
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
     "windash": lambda x: windash_modifier(x),
+    "wide": lambda x: x.encode("utf-16le").decode("utf-8"),
 }
 
 

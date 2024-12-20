@@ -191,7 +191,6 @@ The following modifiers are not supported.
 - utf16
 - utf16be
 - utf16le
-- wide
 
 In other words, the following modifiers are supported.
 
@@ -209,6 +208,7 @@ In other words, the following modifiers are supported.
 - lte
 - re
 - startswith
+- wide
 - windash
 
 ### Correlations
