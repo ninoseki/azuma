@@ -3,14 +3,11 @@ import ipaddress
 from typing import Any, Callable, Mapping
 
 import regex as re
-from sigma.types import (
-    Placeholder,
-    SigmaExpansion,
-    SigmaString,
-)
 
 from azuma import types
 from azuma.exceptions import UnsupportedFeatureError
+
+from .utils import replace_placeholders, replace_with_placeholder
 
 # TODO We need to support the rest of them
 SUPPORTED_MODIFIERS = {
@@ -60,28 +57,22 @@ def base64offset_modifier(x: str) -> str:
     return f"({'|'.join(offsets)})"
 
 
+WINDASH_PATTERN = re.compile("\\B[-/]\\b")
+
+WINDASH_PLACEHOLDERS = (
+    "-",
+    "/",
+    chr(int("2013", 16)),  # en_dash
+    chr(int("2014", 16)),  # em_dash
+    chr(int("2015", 16)),  # horizontal_bar
+)
+
+
 def windash_generator(x: str):
-    # modified from https://github.com/SigmaHQ/pySigma
-    # (https://github.com/SigmaHQ/pySigma/blob/main/sigma/modifiers.py: SigmaWindowsDashModifier)
-    en_dash = chr(int("2013", 16))
-    em_dash = chr(int("2014", 16))
-    horizontal_bar = chr(int("2015", 16))
+    replaced = replace_with_placeholder(x, WINDASH_PATTERN, "_windash")
 
-    def callback(p: Placeholder):
-        if p.name == "_windash":
-            yield from ("-", "/", en_dash, em_dash, horizontal_bar)
-        else:
-            yield p
-
-    val = SigmaString(x)
-    exp = SigmaExpansion(
-        val.replace_with_placeholder(
-            re.compile("\\B[-/]\\b"),  # type: ignore
-            "_windash",
-        ).replace_placeholders(callback)
-    )
-    for v in exp.values:
-        yield str(v)
+    for placeholder in WINDASH_PLACEHOLDERS:
+        yield replace_placeholders(replaced, placeholder)
 
 
 def windash_modifier(x: str) -> str:
