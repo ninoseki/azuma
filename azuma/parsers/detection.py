@@ -27,6 +27,10 @@ SUPPORTED_MODIFIERS = {
     "startswith",
     "wide",
     "windash",
+    # re sub-modifiers
+    "i",
+    "m",
+    "s",
     # 'expand',
     # 'fieldref',
     # 'utf16',
@@ -193,14 +197,11 @@ def get_modified_value(value: str, modifiers: list[str] | None) -> str:
     return value
 
 
+# NOTE: regex flags for non-re modifier case
 MODIFIER_REGEX_FLAGS = re.V1 | re.DOTALL
 
 
-def validate_wide_modifier_order(modifiers: list[str]) -> None:
-    has_wide = "wide" in modifiers
-    if not has_wide:
-        return
-
+def validate_wide_modifier_condition(modifiers: list[str]) -> None:
     has_base64 = "base64" in modifiers
     has_base64offset = "base64offset" in modifiers
     if all([not has_base64, not has_base64offset]):
@@ -215,10 +216,39 @@ def validate_wide_modifier_order(modifiers: list[str]) -> None:
         raise ValueError("wide modifier must be used before base64 or base64offset")
 
 
-def validate_exists_modifier(modifiers: list[str]) -> None:
-    has_exists = "exists" in modifiers
-    if has_exists and len(modifiers) > 1:
+def validate_exists_modifier_condition(modifiers: list[str]) -> None:
+    if len(modifiers) > 1:
         raise ValueError("exists modifier cannot use along with other modifiers")
+
+
+def validate_re_modifier_condition(modifiers: list[str]) -> None:
+    re_index = modifiers.index("re")
+    if re_index > 0:
+        raise ValueError("re modifier must be used before other sub-modifiers")
+
+    has_non_sub_modifiers = len(set(modifiers) - {"re", "i", "m", "s"}) > 0
+    if has_non_sub_modifiers:
+        raise ValueError(
+            "re modifier cannot use along with other modifiers except sub-modifiers"
+        )
+
+
+def apply_re_modifiers(value: str, modifiers: list[str]) -> types.Query:
+    has_re = "re" in modifiers
+    if not has_re:
+        raise ValueError("re modifier must be used")
+
+    validate_re_modifier_condition(modifiers)
+
+    flags = re.V1
+    if "i" in modifiers:
+        flags |= re.IGNORECASE
+    if "m" in modifiers:
+        flags |= re.MULTILINE
+    if "s" in modifiers:
+        flags |= re.DOTALL
+
+    return re.compile(value, flags=flags)
 
 
 def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
@@ -226,6 +256,7 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
     """
+
     has_cidr = "cidr" in modifiers
     if has_cidr:
         return lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)  # type: ignore
@@ -246,32 +277,28 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     if has_gt:
         return lambda x: float(x) > float(value)  # type: ignore
 
-    # If there are wildcards, or we are using the regex modifier, compile the query
-    # string to a regex pattern object
     has_re = "re" in modifiers
-    has_multiple_modifiers = len(modifiers) > 1
-
-    if has_re and has_multiple_modifiers:
-        raise ValueError("re modifier cannot use along with other modifiers")
+    if has_re:
+        return apply_re_modifiers(value, modifiers)
 
     has_cased = "cased" in modifiers
     has_base64 = "base64" in modifiers or "base64offset" in modifiers
-
-    # don't use re.IGNORECASE if cased modifier is used or base64 modifier is used
+    # don't use re.IGNORECASE if cased modifier is used or base64 or base64offset modifier is used
     flags = (
         MODIFIER_REGEX_FLAGS
         if (has_cased or has_base64)
         else MODIFIER_REGEX_FLAGS | re.IGNORECASE
     )
 
-    if has_re:
-        return re.compile(value, flags=flags)
-
     if not ESCAPED_WILDCARD_PATTERN.fullmatch(value):
-        # Transform the unescaped wildcards to their regex equivalent
+        # transform the unescaped wildcards to their regex equivalent
         reg_value = sigma_string_to_regex(value)
         value = get_modified_value(reg_value, modifiers)
         return re.compile(value, flags=flags)
+
+    has_wide = "wide" in modifiers
+    if has_wide:
+        validate_wide_modifier_condition(modifiers)
 
     value = get_modified_value(value, modifiers)
     return str(value).replace("\\*", "*").replace("\\?", "?")
@@ -284,11 +311,10 @@ def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
         if value is None:
             return (key, ([None], modifiers))
 
-        validate_wide_modifier_order(modifiers)
-        validate_exists_modifier(modifiers)
-
         has_exists = "exists" in modifiers
         if has_exists:
+            validate_exists_modifier_condition(modifiers)
+
             if value is True:
                 # NOTE: use "*" to check whether a field exists or not
                 return (key, ([apply_modifiers("*", [])], modifiers))
