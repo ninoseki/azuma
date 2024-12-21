@@ -281,17 +281,23 @@ def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
     def map_raw_key_value(raw_key: str, value: Any) -> types.DetectionItem:
         key, modifiers = process_field_name(raw_key)
 
+        if value is None:
+            return (key, ([None], modifiers))
+
         validate_wide_modifier_order(modifiers)
         validate_exists_modifier(modifiers)
 
         has_exists = "exists" in modifiers
-        if has_exists and value is None:
-            # NOTE: value should not be a list when exists modifier is used
-            # NOTE: use "*" to check whether a field exists or not
-            return (key, ([apply_modifiers("*", [])], modifiers))
+        if has_exists:
+            if value is True:
+                # NOTE: use "*" to check whether a field exists or not
+                return (key, ([apply_modifiers("*", [])], modifiers))
 
-        if value is None:
-            return (key, ([None], modifiers))
+            if value is False:
+                return (key, ([None], modifiers))
+
+            # NOTE: value should not be a list when exists modifier is used
+            raise ValueError("exists modifier must be used with boolean value")
 
         if isinstance(value, list):
             return (
