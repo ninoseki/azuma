@@ -1,9 +1,13 @@
+from typing import Type
+
 import pytest
 import regex as re
 
 from azuma.parsers.detection import (
     base64offset_modifier,
     sigma_string_to_regex,
+    validate_exists_modifier,
+    validate_wide_modifier_order,
     windash_generator,
 )
 
@@ -55,3 +59,38 @@ def test_windash_generator():
         " —param-name ",
         " ―param-name ",
     }
+
+
+@pytest.mark.parametrize(
+    "modifiers,expected",
+    [
+        (["exists"], None),
+        (["exists", "base64"], ValueError),
+        (["exists", "re", "base64"], ValueError),
+    ],
+)
+def test_validate_exists_modifier(modifiers: list[str], expected: Type[Exception]):
+    if expected:
+        with pytest.raises(expected):
+            validate_exists_modifier(modifiers)
+    else:
+        validate_exists_modifier(modifiers)
+
+
+@pytest.mark.parametrize(
+    "modifiers,expected",
+    [
+        (["wide", "base64"], None),
+        (["wide", "base64offset"], None),
+        (["wide", "base64offset", "contains"], None),
+        (["wide"], ValueError),
+        (["base64", "wide"], ValueError),
+        (["base64offset", "wide"], ValueError),
+    ],
+)
+def test_validate_wide_modifier_order(modifiers: list[str], expected: Type[Exception]):
+    if expected:
+        with pytest.raises(expected):
+            validate_wide_modifier_order(modifiers)
+    else:
+        validate_wide_modifier_order(modifiers)

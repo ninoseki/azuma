@@ -185,6 +185,31 @@ def get_modified_value(value: str, modifiers: list[str] | None) -> str:
 MODIFIER_REGEX_FLAGS = re.V1 | re.DOTALL
 
 
+def validate_wide_modifier_order(modifiers: list[str]) -> None:
+    has_wide = "wide" in modifiers
+    if not has_wide:
+        return
+
+    has_base64 = "base64" in modifiers
+    has_base64offset = "base64offset" in modifiers
+    if all([not has_base64, not has_base64offset]):
+        raise ValueError(
+            "wide modifier must be used with base64 or base64offset modifier"
+        )
+
+    wide_index = modifiers.index("wide")
+    base64_index = modifiers.index("base64") if has_base64 else None
+    base64offset_index = modifiers.index("base64offset") if has_base64offset else None
+    if wide_index > (base64_index or base64offset_index or 0):
+        raise ValueError("wide modifier must be used before base64 or base64offset")
+
+
+def validate_exists_modifier(modifiers: list[str]) -> None:
+    has_exists = "exists" in modifiers
+    if has_exists and len(modifiers) > 1:
+        raise ValueError("exists modifier cannot use along with other modifiers")
+
+
 def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     """
     Apply as many modifiers as we can during signature construction
@@ -244,6 +269,9 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
 def normalize_field_map(field: dict[str, Any]) -> types.DetectionMap:
     def map_raw_key_value(raw_key: str, value: Any) -> types.DetectionItem:
         key, modifiers = process_field_name(raw_key)
+
+        validate_wide_modifier_order(modifiers)
+        validate_exists_modifier(modifiers)
 
         has_exists = "exists" in modifiers
         if has_exists and value is None:
