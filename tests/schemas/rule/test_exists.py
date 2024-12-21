@@ -7,10 +7,10 @@ from azuma import schemas
 def rule():
     return schemas.Rule.model_validate_yaml(
         """
-title: endswith
+title: exists
 detection:
   foo:
-    a|endswith: foo
+    a|exists: null
   condition: foo
 logsource:
   category: test"""
@@ -20,15 +20,10 @@ logsource:
 @pytest.mark.parametrize(
     "event,expected",
     [
-        ({"a": "foo", "b": "bar", "c": "baz"}, True),
         ({"a": "foo"}, True),
-        ({"a": "FOO"}, True),
-        ({"a": "Foo"}, True),
-        ({"a": "bar_foo"}, True),
-        ({"a": "foobar"}, False),
+        ({"a": "bar"}, True),
         ({"b": "bar"}, False),
-        ({"a": "bar", "b": "foo"}, False),
     ],
 )
-def test_endswith(event: dict, expected: bool, rule: schemas.Rule):
+def test_exists(event: dict, expected: bool, rule: schemas.Rule):
     assert rule.match(event) is expected

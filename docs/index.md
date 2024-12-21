@@ -30,17 +30,23 @@ logsource:
   category: test
 """
 )
+```
 
+```py
 # Rule#match returns whether an event is matched with the rule or not
-print(rule.match({"foo": "bar"}))  # True
-print(rule.match({"foo": "-"}))  # False
+>>> rule.match({"foo": "bar"})
+True
+>>> rule.match({"foo": "-"})
+False
+```
 
+```py
 # or you can create a rule from a file
 rule = Rule.parse_file("./your_rule.yml")
 
-
-# Use RuleSet if you want to do bulk matches
+# use RuleSet if you want to do bulk matches
 rule_set = RuleSet.from_dir("./rules/")
+
 # RuleSet#match_all returns a list of rules matches with an event
 rule_set.match_all({...})
 ```
@@ -176,35 +182,35 @@ pre-commit:
 
 ## Known limitations
 
-### Detection
+### Modifiers
 
-#### [Value modifiers](https://sigmahq.github.io/sigma-specification/Sigma_specification.html#value-modifiers)
+The following modifiers are not supported.
 
-The following value modifiers are not supported.
-
-- base64offset
-- utf16le
-- utf16be
-- wide
+- expand
+- fieldref
 - utf16
-- windash
+- utf16be
+- utf16le
 
-In other words, the following value modifiers are supported.
+In other words, the following modifiers are supported.
 
-- contains
 - all
 - base64
+- base64offset
+- cased
+- cidr
+- contains
 - endswith
-- startswith
+- exists
+- gt
+- gte
+- lt
+- lte
 - re
+- startswith
+- wide
+- windash
 
-#### [Timeframe](https://sigmahq.github.io/sigma-specification/Sigma_specification.html#timeframe)
+### Correlations
 
-Timeframe is not supported
-
-### [Condition](https://sigmahq.github.io/sigma-specification/Sigma_specification.html#condition)
-
-The following expressions are not supported.
-
-- Aggregation expression
-- Near aggregation expression
+Correlations is not supported.
