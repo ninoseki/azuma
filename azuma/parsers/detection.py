@@ -78,7 +78,7 @@ def windash_generator(x: str):
         yield replace_placeholders(replaced, placeholder)
 
 
-def windash_modifier(x: str) -> str:
+def apply_windash_modifier(x: str) -> str:
     modified = set(windash_generator(x))
     return f"({'|'.join(modified)})"
 
@@ -89,7 +89,7 @@ MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
     "base64offset": lambda x: apply_base64offset_modifier(x),
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
-    "windash": lambda x: windash_modifier(x),
+    "windash": lambda x: apply_windash_modifier(x),
     "wide": lambda x: x.encode("utf-16le").decode("utf-8"),
 }
 
