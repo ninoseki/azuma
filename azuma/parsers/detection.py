@@ -281,8 +281,17 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     if has_re:
         return apply_re_modifiers(value, modifiers)
 
+    has_re_sub_modifiers = any(sub in modifiers for sub in {"i", "m", "s"})
+    if has_re_sub_modifiers:
+        raise ValueError("re sub-modifiers must be used with re modifier")
+
     has_cased = "cased" in modifiers
     has_base64 = "base64" in modifiers or "base64offset" in modifiers
+
+    has_wide = "wide" in modifiers
+    if has_wide:
+        validate_wide_modifier_condition(modifiers)
+
     # don't use re.IGNORECASE if cased modifier is used or base64 or base64offset modifier is used
     flags = (
         MODIFIER_REGEX_FLAGS
@@ -295,10 +304,6 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
         reg_value = sigma_string_to_regex(value)
         value = get_modified_value(reg_value, modifiers)
         return re.compile(value, flags=flags)
-
-    has_wide = "wide" in modifiers
-    if has_wide:
-        validate_wide_modifier_condition(modifiers)
 
     value = get_modified_value(value, modifiers)
     return str(value).replace("\\*", "*").replace("\\?", "?")
