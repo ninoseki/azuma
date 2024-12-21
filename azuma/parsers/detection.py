@@ -25,6 +25,8 @@ SUPPORTED_MODIFIERS = {
     "lte",
     "re",
     "startswith",
+    "utf16be",
+    "utf16le",
     "wide",
     "windash",
     # re sub-modifiers
@@ -33,9 +35,7 @@ SUPPORTED_MODIFIERS = {
     "s",
     # 'expand',
     # 'fieldref',
-    # 'utf16',
-    # 'utf16be',
-    # 'utf16le',
+    # "utf16",
 }
 
 
@@ -87,22 +87,20 @@ def apply_windash_modifier(x: str) -> str:
     return f"({'|'.join(modified)})"
 
 
-def apply_wide_modifier(x: str) -> str:
-    r: list[str] = []
-    for item in x:
-        r.append(item.encode("utf-16le").decode("utf-8"))
-
-    return "".join(r)
+def apply_utf_modifier(x: str, encoding: str) -> str:
+    return "".join([c.encode(encoding).decode("utf-8") for c in x])
 
 
 MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
-    "contains": lambda x: f".*{x}.*",
     "base64": lambda x: apply_base64_modifier(x),
     "base64offset": lambda x: apply_base64offset_modifier(x),
+    "contains": lambda x: f".*{x}.*",
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
+    "utf16be": lambda x: apply_utf_modifier(x, encoding="utf-16be"),
+    "utf16le": lambda x: apply_utf_modifier(x, encoding="utf-16le"),
+    "wide": lambda x: apply_utf_modifier(x, encoding="utf-16le"),
     "windash": lambda x: apply_windash_modifier(x),
-    "wide": lambda x: apply_wide_modifier(x),
 }
 
 

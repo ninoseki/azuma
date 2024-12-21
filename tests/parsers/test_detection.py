@@ -5,6 +5,7 @@ import regex as re
 
 from azuma.parsers.detection import (
     apply_base64offset_modifier,
+    apply_utf_modifier,
     sigma_string_to_regex,
     validate_exists_modifier_condition,
     validate_wide_modifier_condition,
@@ -45,11 +46,22 @@ def test_sigma_string_to_regex_with_fullmatch(v: str, expected: str):
     assert re.compile(sigma_string_to_regex(v)).fullmatch(expected)
 
 
-def test_base64offset_modifier():
+def test_apply_base64offset_modifier():
     assert (
         apply_base64offset_modifier("/bin/bash")
         == "(L2Jpbi9iYXNo|9iaW4vYmFza|vYmluL2Jhc2)"
     )
+
+
+@pytest.mark.parametrize(
+    "v,encoding,expected",
+    [
+        ("cmd", "utf-16le", bytes.fromhex("63 00 6d 00 64 00")),
+        ("cmd", "utf-16be", bytes.fromhex("00 63 00 6d 00 64")),
+    ],
+)
+def test_apply_utf_modifier(v: str, encoding: str, expected: bytes):
+    assert apply_utf_modifier(v, encoding=encoding) == expected.decode()
 
 
 def test_windash_generator():
