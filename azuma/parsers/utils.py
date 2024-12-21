@@ -1,4 +1,5 @@
-# forked from https://github.com/SigmaHQ/pySigma/
+# modified from https://github.com/SigmaHQ/pySigma/
+# (https://github.com/SigmaHQ/pySigma/blob/main/sigma/types.py)
 import dataclasses
 
 import regex as re
