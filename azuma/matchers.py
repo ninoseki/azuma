@@ -36,7 +36,12 @@ def check_pair(event: dict[Any, Any], key: str, value: types.Query) -> bool:
         return False
 
     if isinstance(value, re.Pattern):
-        return bool(value.match(str(event[key])))
+        # use search when re.MULTILINE is used
+        # ref. https://docs.python.org/3/library/re.html#search-vs-match
+        if value.flags & re.MULTILINE:
+            return value.search(str(event[key])) is not None
+
+        return value.match(str(event[key])) is not None
 
     if callable(value):
         return bool(value(event[key]))  # type: ignore

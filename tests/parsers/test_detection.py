@@ -6,8 +6,8 @@ import regex as re
 from azuma.parsers.detection import (
     apply_base64offset_modifier,
     sigma_string_to_regex,
-    validate_exists_modifier,
-    validate_wide_modifier_order,
+    validate_exists_modifier_condition,
+    validate_wide_modifier_condition,
     windash_generator,
 )
 
@@ -73,9 +73,9 @@ def test_windash_generator():
 def test_validate_exists_modifier(modifiers: list[str], expected: Type[Exception]):
     if expected:
         with pytest.raises(expected):
-            validate_exists_modifier(modifiers)
+            validate_exists_modifier_condition(modifiers)
     else:
-        validate_exists_modifier(modifiers)
+        validate_exists_modifier_condition(modifiers)
 
 
 @pytest.mark.parametrize(
@@ -92,6 +92,6 @@ def test_validate_exists_modifier(modifiers: list[str], expected: Type[Exception
 def test_validate_wide_modifier_order(modifiers: list[str], expected: Type[Exception]):
     if expected:
         with pytest.raises(expected):
-            validate_wide_modifier_order(modifiers)
+            validate_wide_modifier_condition(modifiers)
     else:
-        validate_wide_modifier_order(modifiers)
+        validate_wide_modifier_condition(modifiers)
