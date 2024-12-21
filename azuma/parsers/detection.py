@@ -222,12 +222,11 @@ def validate_exists_modifier_condition(modifiers: list[str]) -> None:
 
 
 def validate_re_modifier_condition(modifiers: list[str]) -> None:
-    has_non_sub_modifiers = len(set(modifiers) - {"re", "i", "m", "s"}) > 0
-
     re_index = modifiers.index("re")
     if re_index > 0:
         raise ValueError("re modifier must be used before other sub-modifiers")
 
+    has_non_sub_modifiers = len(set(modifiers) - {"re", "i", "m", "s"}) > 0
     if has_non_sub_modifiers:
         raise ValueError(
             "re modifier cannot use along with other modifiers except sub-modifiers"
