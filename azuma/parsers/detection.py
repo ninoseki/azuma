@@ -83,6 +83,14 @@ def apply_windash_modifier(x: str) -> str:
     return f"({'|'.join(modified)})"
 
 
+def apply_wide_modifier(x: str) -> str:
+    r: list[str] = []
+    for item in x:
+        r.append(item.encode("utf-16le").decode("utf-8"))
+
+    return "".join(r)
+
+
 MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
     "contains": lambda x: f".*{x}.*",
     "base64": lambda x: apply_base64_modifier(x),
@@ -90,7 +98,7 @@ MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
     "windash": lambda x: apply_windash_modifier(x),
-    "wide": lambda x: x.encode("utf-16le").decode("utf-8"),
+    "wide": lambda x: apply_wide_modifier(x),
 }
 
 
