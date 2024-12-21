@@ -10,8 +10,12 @@ def rule():
 title: exists
 detection:
   foo:
-    a|exists: null
-  condition: foo
+    a|exists: true
+  bar:
+    b|exists: false
+  baz:
+    c|exists: true
+  condition: (foo or bar) and baz
 logsource:
   category: test"""
     )
@@ -20,9 +24,12 @@ logsource:
 @pytest.mark.parametrize(
     "event,expected",
     [
-        ({"a": "foo"}, True),
-        ({"a": "bar"}, True),
-        ({"b": "bar"}, False),
+        ({"a": "foo"}, False),
+        ({"a": "foo", "b": "bar"}, False),
+        ({"b": "foo"}, False),
+        ({"d": "foo"}, False),
+        ({"c": "foo"}, True),
+        ({"a": "foo", "c": "foo"}, True),
     ],
 )
 def test_exists(event: dict, expected: bool, rule: schemas.Rule):
