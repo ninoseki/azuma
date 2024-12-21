@@ -4,7 +4,7 @@ import pytest
 import regex as re
 
 from azuma.parsers.detection import (
-    base64offset_modifier,
+    apply_base64offset_modifier,
     sigma_string_to_regex,
     validate_exists_modifier,
     validate_wide_modifier_order,
@@ -47,7 +47,8 @@ def test_sigma_string_to_regex_with_fullmatch(v: str, expected: str):
 
 def test_base64offset_modifier():
     assert (
-        base64offset_modifier("/bin/bash") == "(L2Jpbi9iYXNo|9iaW4vYmFza|vYmluL2Jhc2)"
+        apply_base64offset_modifier("/bin/bash")
+        == "(L2Jpbi9iYXNo|9iaW4vYmFza|vYmluL2Jhc2)"
     )
 
 

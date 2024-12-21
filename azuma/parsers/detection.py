@@ -35,12 +35,15 @@ SUPPORTED_MODIFIERS = {
 }
 
 
-def base64_modifier(x: str) -> str:
+def apply_base64_modifier(x: str) -> str:
     x = x.replace("\n", "")
     return base64.b64encode(x.encode()).decode()
 
 
-def base64offset_modifier(x: str) -> str:
+def apply_base64offset_modifier(x: str) -> str:
+    # modified from https://github.com/SigmaHQ/pySigma
+    # (https://github.com/SigmaHQ/pySigma/blob/main/sigma/modifiers.py: SigmaBase64OffsetModifier)
+    x = x.replace("\n", "")
     x = x.replace("\n", "")
 
     start_offsets = (0, 2, 3)
@@ -82,8 +85,8 @@ def windash_modifier(x: str) -> str:
 
 MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
     "contains": lambda x: f".*{x}.*",
-    "base64": lambda x: base64_modifier(x),
-    "base64offset": lambda x: base64offset_modifier(x),
+    "base64": lambda x: apply_base64_modifier(x),
+    "base64offset": lambda x: apply_base64offset_modifier(x),
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
     "windash": lambda x: windash_modifier(x),
