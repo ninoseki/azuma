@@ -1,19 +1,18 @@
 import pytest
 
 from azuma import schemas
+from tests.utils import build_rule
 
 
 @pytest.fixture
 def rule():
-    return schemas.Rule.model_validate_yaml(
+    return build_rule(
         """
-title: windash
 detection:
   foo:
     a|windash: " -f "
   condition: foo
-logsource:
-  category: test"""
+"""
     )
 
 

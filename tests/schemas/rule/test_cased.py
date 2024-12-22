@@ -1,21 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: cased
-detection:
-  foo:
-    a|cased: foo
-  condition: foo
-logsource:
-  category: test
-"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -26,5 +11,10 @@ logsource:
         ({"a": "Foo"}, False),
     ],
 )
-def test_cased(event: dict, expected: bool, rule: schemas.Rule):
+def test_cased(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  foo:
+    a|cased: foo
+  condition: foo""")
     assert rule.match(event) is expected

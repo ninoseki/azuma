@@ -1,22 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def nested_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-    category: test
-detection:
-    field:
-        foo:
-            bar: a
-    condition: field
-    """
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -28,24 +12,15 @@ detection:
         ({"log": "a"}, False),
     ],
 )
-def test_nested_dict(event: dict, expected: bool, nested_rule: schemas.Rule):
-    assert nested_rule.match(event) is expected
-
-
-@pytest.fixture
-def nested_with_wildcard_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-    category: test
+def test_nested_dict(event: dict, expected: bool):
+    rule = build_rule("""
 detection:
-    field:
-        foo:
-            bar*: a
-    condition: field
-    """
-    )
+  field:
+    foo:
+      bar: a
+  condition: field
+""")
+    assert rule.match(event) is expected
 
 
 @pytest.mark.parametrize(
@@ -59,7 +34,12 @@ detection:
         ({"log": "a"}, False),
     ],
 )
-def test_nested_dict_with_wildcard(
-    event: dict, expected: bool, nested_with_wildcard_rule: schemas.Rule
-):
-    assert nested_with_wildcard_rule.match(event) is expected
+def test_nested_dict_with_wildcard(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  field:
+    foo:
+      bar*: a
+  condition: field
+""")
+    assert rule.match(event) is expected

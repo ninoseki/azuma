@@ -1,6 +1,6 @@
 import pytest
 
-from azuma import schemas
+from tests.utils import build_rule
 
 
 @pytest.fixture
@@ -15,11 +15,8 @@ def event():
 
 
 @pytest.fixture
-def base_signature():
+def base_detection():
     return """
-title: sample signature
-logsource:
-    category: test
 detection:
     true_expected: # dogs or dog_count
         - go?d
@@ -44,48 +41,40 @@ detection:
 
 
 @pytest.fixture
-def complicated_condition(base_signature: str):
+def complicated_condition(base_detection: str):
     return (
-        base_signature
+        base_detection
         + """
     condition: (all of true_*) and (1 of *_expected) and (1 of true_*) and not all of them and (all of them or true_expected)
 """
     )
 
 
-def test_or_search(event: dict, base_signature: str):
+def test_or_search(event: dict, base_detection: str):
     # Test a signature where the search block is just a list (or operation)
     # Also has an example of the ? wildcard embedded
-    rule = schemas.Rule.model_validate_yaml(
-        base_signature + "    condition: true_expected"
-    )
+    rule = build_rule(base_detection + "    condition: true_expected")
     assert rule.match(event) is True
 
 
-def test_value_or_search(event: dict, base_signature: str):
+def test_value_or_search(event: dict, base_detection: str):
     # Test a signature where the search block has a list of values (or across those values)
-    rule = schemas.Rule.model_validate_yaml(
-        base_signature + "    condition: true_also_expected"
-    )
+    rule = build_rule(base_detection + "    condition: true_also_expected")
     assert rule.match(event) is True
 
 
-def test_value_wildcard_search(event: dict, base_signature: str):
+def test_value_wildcard_search(event: dict, base_detection: str):
     # has an example of the * wildcard embedded
-    rule = schemas.Rule.model_validate_yaml(
-        base_signature + "    condition: true_cats_expected"
-    )
+    rule = build_rule(base_detection + "    condition: true_cats_expected")
     assert rule.match(event) is True
 
 
-def test_and_search(event: dict, base_signature: str):
+def test_and_search(event: dict, base_detection: str):
     # Test a signature where the search block is just a map (and operation)
-    rule = schemas.Rule.model_validate_yaml(
-        base_signature + "    condition: true_still_expected"
-    )
+    rule = build_rule(base_detection + "    condition: true_still_expected")
     assert rule.match(event) is True
 
 
 def test_complicated_condition(event: dict, complicated_condition: str):
-    rule = schemas.Rule.model_validate_yaml(complicated_condition)
+    rule = build_rule(complicated_condition)
     assert rule.match(event) is True

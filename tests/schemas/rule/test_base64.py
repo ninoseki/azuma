@@ -2,21 +2,7 @@ import base64
 
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: base64
-detection:
-  foo:
-    a|base64: foo
-  condition: foo
-logsource:
-  category: test"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -29,5 +15,11 @@ logsource:
         ({"a": "foo"}, False),
     ],
 )
-def test_base64(event: dict, expected: bool, rule: schemas.Rule):
+def test_base64(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  foo:
+    a|base64: foo
+  condition: foo
+    """)
     assert rule.match(event) is expected

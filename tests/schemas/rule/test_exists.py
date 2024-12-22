@@ -1,24 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: exists
-detection:
-  foo:
-    a|exists: true
-  bar:
-    b|exists: false
-  baz:
-    c|exists: true
-  condition: (foo or bar) and baz
-logsource:
-  category: test"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -32,5 +14,15 @@ logsource:
         ({"a": "foo", "c": "foo"}, True),
     ],
 )
-def test_exists(event: dict, expected: bool, rule: schemas.Rule):
+def test_exists(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  foo:
+    a|exists: true
+  bar:
+    b|exists: false
+  baz:
+    c|exists: true
+  condition: (foo or bar) and baz
+""")
     assert rule.match(event) is expected

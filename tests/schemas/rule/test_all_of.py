@@ -1,21 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def all_of_them_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-  category: test
-detection:
-    a: ["a"]
-    b: ["b"]
-    condition: all of them
-    """
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -28,25 +13,14 @@ detection:
         ({"log": "c"}, False),
     ],
 )
-def test_all_of_them(event: dict, expected: bool, all_of_them_rule: schemas.Rule):
-    assert all_of_them_rule.match(event) is expected
-
-
-@pytest.fixture
-def all_of_x_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-  category: test
+def test_all_of_them(event: dict, expected: bool):
+    rule = build_rule("""
 detection:
-    aa: ["aa"]
-    ab: ["ab"]
-    ba: ["ba"]
-    bb: ["bb"]
-    condition: all of a*
-    """
-    )
+    a: ["a"]
+    b: ["b"]
+    condition: all of them
+""")
+    assert rule.match(event) is expected
 
 
 @pytest.mark.parametrize(
@@ -58,5 +32,13 @@ detection:
         ({"log": "aabb"}, True),
     ],
 )
-def test_all_of_x(event: dict, expected: bool, all_of_x_rule: schemas.Rule):
-    assert all_of_x_rule.match(event) is expected
+def test_all_of_x(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  aa: ["aa"]
+  ab: ["ab"]
+  ba: ["ba"]
+  bb: ["bb"]
+  condition: all of a*
+""")
+    assert rule.match(event) is expected

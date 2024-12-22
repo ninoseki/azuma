@@ -1,20 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: gte
-detection:
-  foo:
-    a|gte: 10
-  condition: foo
-logsource:
-  category: test"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -25,5 +11,10 @@ logsource:
         ({"a": 9}, False),
     ],
 )
-def test_gte(event: dict, expected: bool, rule: schemas.Rule):
+def test_gte(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  foo:
+    a|gte: 10
+  condition: foo""")
     assert rule.match(event) is expected

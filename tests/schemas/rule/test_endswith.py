@@ -1,20 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: endswith
-detection:
-  foo:
-    a|endswith: foo
-  condition: foo
-logsource:
-  category: test"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -30,5 +16,10 @@ logsource:
         ({"a": "bar", "b": "foo"}, False),
     ],
 )
-def test_endswith(event: dict, expected: bool, rule: schemas.Rule):
+def test_endswith(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  foo:
+    a|endswith: foo
+  condition: foo""")
     assert rule.match(event) is expected

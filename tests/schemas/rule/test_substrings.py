@@ -1,22 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-  category: test
-detection:
-    signs:
-        - "red things"
-        - "blue things"
-    condition: signs
-    """
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -30,5 +14,14 @@ detection:
         ),
     ],
 )
-def test_substrings(event: dict, expected: bool, rule: schemas.Rule):
+def test_substrings(event: dict, expected: bool):
+    rule = build_rule(
+        """
+detection:
+  signs:
+    - "red things"
+    - "blue things"
+  condition: signs
+    """
+    )
     assert rule.match(event) is expected

@@ -1,20 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: selection
-detection:
-  selection:
-    Foo: bar
-  condition: selection
-logsource:
-  category: test"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -25,5 +11,11 @@ logsource:
         ({"a": "bar", "b": "foo"}, False),
     ],
 )
-def test_selection(event: dict, expected: bool, rule: schemas.Rule):
+def test_selection(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  selection:
+    Foo: bar
+  condition: selection
+""")
     assert rule.match(event) is expected
