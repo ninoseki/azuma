@@ -6,7 +6,7 @@ from returns.result import safe
 
 from azuma.parsers.detection import (
     apply_base64offset_modifier,
-    apply_utf_modifier,
+    apply_utf16_modifier,
     sigma_string_to_regex,
     validate_base64_sub_modifier_condition,
     validate_exists_modifier_condition,
@@ -59,10 +59,11 @@ def test_apply_base64offset_modifier():
     [
         ("cmd", "utf-16le", bytes.fromhex("63 00 6d 00 64 00")),
         ("cmd", "utf-16be", bytes.fromhex("00 63 00 6d 00 64")),
+        ("cmd", "utf-16", bytes.fromhex("FF FE 63 00 6d 00 64 00")),
     ],
 )
-def test_apply_utf_modifier(v: str, encoding: str, expected: bytes):
-    assert apply_utf_modifier(v, encoding=encoding) == expected.decode()
+def test_apply_utf16_modifier(v: str, encoding: str, expected: bytes):
+    assert apply_utf16_modifier(v, encoding=encoding) == expected
 
 
 def test_windash_generator():

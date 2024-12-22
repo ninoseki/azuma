@@ -188,7 +188,6 @@ The following modifiers are not supported.
 
 - expand
 - fieldref
-- utf16
 
 In other words, the following modifiers are supported.
 
@@ -206,6 +205,7 @@ In other words, the following modifiers are supported.
 - lte
 - re
 - startswith
+- utf16
 - utf16be
 - utf16le
 - wide

@@ -25,6 +25,7 @@ SUPPORTED_MODIFIERS = {
     "lte",
     "re",
     "startswith",
+    "utf16",
     "utf16be",
     "utf16le",
     "wide",
@@ -35,31 +36,40 @@ SUPPORTED_MODIFIERS = {
     "s",
     # 'expand',
     # 'fieldref',
-    # "utf16",
 }
 
 
-def apply_base64_modifier(x: str) -> str:
-    x = x.replace("\n", "")
-    return base64.b64encode(x.encode()).decode()
+def apply_base64_modifier(x: str | bytes) -> str:
+    if isinstance(x, str):
+        x = x.replace("\n", "")
+        return base64.b64encode(x.encode()).decode()
+
+    return base64.b64encode(x).decode()
 
 
-def apply_base64offset_modifier(x: str) -> str:
+def apply_base64offset_modifier(x: str | bytes) -> str:
     # modified from https://github.com/SigmaHQ/pySigma
     # (https://github.com/SigmaHQ/pySigma/blob/main/sigma/modifiers.py: SigmaBase64OffsetModifier)
-    x = x.replace("\n", "")
-    x = x.replace("\n", "")
-
     start_offsets = (0, 2, 3)
     end_offsets = (None, -3, -2)
-
     offsets: list[str] = []
-    for i in range(3):
-        offsets.append(
-            base64.b64encode(i * b" " + x.encode())[
-                start_offsets[i] : end_offsets[(len(x) + i) % 3]
-            ].decode()
-        )
+
+    if isinstance(x, str):
+        x = x.replace("\n", "")
+
+        for i in range(3):
+            offsets.append(
+                base64.b64encode(i * b" " + x.encode())[
+                    start_offsets[i] : end_offsets[(len(x) + i) % 3]
+                ].decode()
+            )
+    else:
+        for i in range(3):
+            offsets.append(
+                base64.b64encode(i * b" " + x)[
+                    start_offsets[i] : end_offsets[(len(x) + i) % 3]
+                ].decode()
+            )
 
     return f"({'|'.join(offsets)})"
 
@@ -87,8 +97,15 @@ def apply_windash_modifier(x: str) -> str:
     return f"({'|'.join(modified)})"
 
 
-def apply_utf_modifier(x: str, encoding: str) -> str:
-    return "".join([c.encode(encoding).decode("utf-8") for c in x])
+def apply_utf16_modifier(x: str, encoding: str) -> bytes:
+    if encoding == "utf-16":
+        return bytes.fromhex("FF FE") + apply_utf16_modifier(x, "utf-16le")
+
+    modified = b""
+    for c in x:
+        modified += c.encode(encoding)
+
+    return modified
 
 
 MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
@@ -97,9 +114,10 @@ MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
     "contains": lambda x: f".*{x}.*",
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
-    "utf16be": lambda x: apply_utf_modifier(x, encoding="utf-16be"),
-    "utf16le": lambda x: apply_utf_modifier(x, encoding="utf-16le"),
-    "wide": lambda x: apply_utf_modifier(x, encoding="utf-16le"),
+    "utf16": lambda x: apply_utf16_modifier(x, encoding="utf-16"),
+    "utf16be": lambda x: apply_utf16_modifier(x, encoding="utf-16be"),
+    "utf16le": lambda x: apply_utf16_modifier(x, encoding="utf-16le"),
+    "wide": lambda x: apply_utf16_modifier(x, encoding="utf-16le"),
     "windash": lambda x: apply_windash_modifier(x),
 }
 
