@@ -1,14 +1,15 @@
-from typing import Type
+from typing import Any
 
 import pytest
 import regex as re
+from returns.result import safe
 
 from azuma.parsers.detection import (
     apply_base64offset_modifier,
     apply_utf_modifier,
     sigma_string_to_regex,
+    validate_base64_sub_modifier_condition,
     validate_exists_modifier_condition,
-    validate_wide_modifier_condition,
     windash_generator,
 )
 
@@ -77,33 +78,35 @@ def test_windash_generator():
 @pytest.mark.parametrize(
     "modifiers,expected",
     [
-        (["exists"], None),
+        (["exists"], type(None)),
         (["exists", "base64"], ValueError),
         (["exists", "re", "base64"], ValueError),
     ],
 )
-def test_validate_exists_modifier(modifiers: list[str], expected: Type[Exception]):
-    if expected:
-        with pytest.raises(expected):
-            validate_exists_modifier_condition(modifiers)
-    else:
-        validate_exists_modifier_condition(modifiers)
+def test_validate_exists_modifier(modifiers: list[str], expected: Any):
+    @safe
+    def inner():
+        return validate_exists_modifier_condition(modifiers)
+
+    result = inner()
+    assert isinstance(result._inner_value, expected)
 
 
 @pytest.mark.parametrize(
     "modifiers,expected",
     [
-        (["wide", "base64"], None),
-        (["wide", "base64offset"], None),
-        (["wide", "base64offset", "contains"], None),
+        (["wide", "base64"], type(None)),
+        (["wide", "base64offset"], type(None)),
+        (["wide", "base64offset", "contains"], type(None)),
         (["wide"], ValueError),
         (["base64", "wide"], ValueError),
         (["base64offset", "wide"], ValueError),
     ],
 )
-def test_validate_wide_modifier_order(modifiers: list[str], expected: Type[Exception]):
-    if expected:
-        with pytest.raises(expected):
-            validate_wide_modifier_condition(modifiers)
-    else:
-        validate_wide_modifier_condition(modifiers)
+def test_validate_wide_modifier_order(modifiers: list[str], expected: Any):
+    @safe
+    def inner():
+        return validate_base64_sub_modifier_condition(modifiers, "wide")
+
+    result = inner()
+    assert isinstance(result._inner_value, expected)

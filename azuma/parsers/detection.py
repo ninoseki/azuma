@@ -199,19 +199,23 @@ def get_modified_value(value: str, modifiers: list[str] | None) -> str:
 MODIFIER_REGEX_FLAGS = re.V1 | re.DOTALL
 
 
-def validate_wide_modifier_condition(modifiers: list[str]) -> None:
+def validate_base64_sub_modifier_condition(
+    modifiers: list[str], sub_modifier: str
+) -> None:
     has_base64 = "base64" in modifiers
     has_base64offset = "base64offset" in modifiers
     if all([not has_base64, not has_base64offset]):
         raise ValueError(
-            "wide modifier must be used with base64 or base64offset modifier"
+            f"{sub_modifier} modifier must be used with base64 or base64offset modifier"
         )
 
-    wide_index = modifiers.index("wide")
+    sub_modifier_index = modifiers.index(sub_modifier)
     base64_index = modifiers.index("base64") if has_base64 else None
     base64offset_index = modifiers.index("base64offset") if has_base64offset else None
-    if wide_index > (base64_index or base64offset_index or 0):
-        raise ValueError("wide modifier must be used before base64 or base64offset")
+    if sub_modifier_index > (base64_index or base64offset_index or 0):
+        raise ValueError(
+            f"{sub_modifier} modifier must be used before base64 or base64offset"
+        )
 
 
 def validate_exists_modifier_condition(modifiers: list[str]) -> None:
@@ -249,7 +253,7 @@ def apply_re_modifiers(value: str, modifiers: list[str]) -> types.Query:
     return re.compile(value, flags=flags)
 
 
-def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
+def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:  # noqa: C901
     """
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
@@ -288,7 +292,15 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
 
     has_wide = "wide" in modifiers
     if has_wide:
-        validate_wide_modifier_condition(modifiers)
+        validate_base64_sub_modifier_condition(modifiers, "wide")
+
+    has_utf16be = "utf16be" in modifiers
+    if has_utf16be:
+        validate_base64_sub_modifier_condition(modifiers, "utf16be")
+
+    has_utf16le = "utf16le" in modifiers
+    if has_utf16le:
+        validate_base64_sub_modifier_condition(modifiers, "utf16le")
 
     # don't use re.IGNORECASE if cased modifier is used or base64 or base64offset modifier is used
     flags = (
