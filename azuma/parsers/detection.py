@@ -25,6 +25,8 @@ SUPPORTED_MODIFIERS = {
     "lte",
     "re",
     "startswith",
+    "utf16be",
+    "utf16le",
     "wide",
     "windash",
     # re sub-modifiers
@@ -33,9 +35,7 @@ SUPPORTED_MODIFIERS = {
     "s",
     # 'expand',
     # 'fieldref',
-    # 'utf16',
-    # 'utf16be',
-    # 'utf16le',
+    # "utf16",
 }
 
 
@@ -87,22 +87,20 @@ def apply_windash_modifier(x: str) -> str:
     return f"({'|'.join(modified)})"
 
 
-def apply_wide_modifier(x: str) -> str:
-    r: list[str] = []
-    for item in x:
-        r.append(item.encode("utf-16le").decode("utf-8"))
-
-    return "".join(r)
+def apply_utf_modifier(x: str, encoding: str) -> str:
+    return "".join([c.encode(encoding).decode("utf-8") for c in x])
 
 
 MODIFIER_FUNCTIONS: Mapping[str, Callable[[str], Any]] = {
-    "contains": lambda x: f".*{x}.*",
     "base64": lambda x: apply_base64_modifier(x),
     "base64offset": lambda x: apply_base64offset_modifier(x),
+    "contains": lambda x: f".*{x}.*",
     "endswith": lambda x: f".*{x}$",
     "startswith": lambda x: f"^{x}.*",
+    "utf16be": lambda x: apply_utf_modifier(x, encoding="utf-16be"),
+    "utf16le": lambda x: apply_utf_modifier(x, encoding="utf-16le"),
+    "wide": lambda x: apply_utf_modifier(x, encoding="utf-16le"),
     "windash": lambda x: apply_windash_modifier(x),
-    "wide": lambda x: apply_wide_modifier(x),
 }
 
 
@@ -201,19 +199,23 @@ def get_modified_value(value: str, modifiers: list[str] | None) -> str:
 MODIFIER_REGEX_FLAGS = re.V1 | re.DOTALL
 
 
-def validate_wide_modifier_condition(modifiers: list[str]) -> None:
+def validate_base64_sub_modifier_condition(
+    modifiers: list[str], sub_modifier: str
+) -> None:
     has_base64 = "base64" in modifiers
     has_base64offset = "base64offset" in modifiers
     if all([not has_base64, not has_base64offset]):
         raise ValueError(
-            "wide modifier must be used with base64 or base64offset modifier"
+            f"{sub_modifier} modifier must be used with base64 or base64offset modifier"
         )
 
-    wide_index = modifiers.index("wide")
+    sub_modifier_index = modifiers.index(sub_modifier)
     base64_index = modifiers.index("base64") if has_base64 else None
     base64offset_index = modifiers.index("base64offset") if has_base64offset else None
-    if wide_index > (base64_index or base64offset_index or 0):
-        raise ValueError("wide modifier must be used before base64 or base64offset")
+    if sub_modifier_index > (base64_index or base64offset_index or 0):
+        raise ValueError(
+            f"{sub_modifier} modifier must be used before base64 or base64offset"
+        )
 
 
 def validate_exists_modifier_condition(modifiers: list[str]) -> None:
@@ -251,7 +253,7 @@ def apply_re_modifiers(value: str, modifiers: list[str]) -> types.Query:
     return re.compile(value, flags=flags)
 
 
-def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
+def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:  # noqa: C901
     """
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
@@ -290,7 +292,15 @@ def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
 
     has_wide = "wide" in modifiers
     if has_wide:
-        validate_wide_modifier_condition(modifiers)
+        validate_base64_sub_modifier_condition(modifiers, "wide")
+
+    has_utf16be = "utf16be" in modifiers
+    if has_utf16be:
+        validate_base64_sub_modifier_condition(modifiers, "utf16be")
+
+    has_utf16le = "utf16le" in modifiers
+    if has_utf16le:
+        validate_base64_sub_modifier_condition(modifiers, "utf16le")
 
     # don't use re.IGNORECASE if cased modifier is used or base64 or base64offset modifier is used
     flags = (
