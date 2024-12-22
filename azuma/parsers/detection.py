@@ -214,7 +214,7 @@ def validate_base64_sub_modifier_condition(
     base64offset_index = modifiers.index("base64offset") if has_base64offset else None
     if sub_modifier_index > (base64_index or base64offset_index or 0):
         raise ValueError(
-            f"{sub_modifier} modifier must be used before base64 or base64offset"
+            f"{sub_modifier} modifier must be used before base64 or base64offset modifier"
         )
 
 
@@ -231,14 +231,13 @@ def validate_re_modifier_condition(modifiers: list[str]) -> None:
     has_non_sub_modifiers = len(set(modifiers) - {"re", "i", "m", "s"}) > 0
     if has_non_sub_modifiers:
         raise ValueError(
-            "re modifier cannot use along with other modifiers except sub-modifiers"
+            "re modifier cannot use along with other modifiers except re sub-modifiers"
         )
 
 
 def apply_re_modifiers(value: str, modifiers: list[str]) -> types.Query:
-    has_re = "re" in modifiers
-    if not has_re:
-        raise ValueError("re modifier must be used")
+    if "re" not in modifiers:
+        return None
 
     validate_re_modifier_condition(modifiers)
 
@@ -253,54 +252,74 @@ def apply_re_modifiers(value: str, modifiers: list[str]) -> types.Query:
     return re.compile(value, flags=flags)
 
 
-def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:  # noqa: C901
+def apply_cidr_modifier(value: str, modifiers: list[str]) -> types.Query:
+    if "cidr" not in modifiers:
+        return None
+
+    return lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)  # type: ignore
+
+
+def apply_lte_modifier(value: str, modifiers: list[str]) -> types.Query:
+    if "lte" not in modifiers:
+        return None
+
+    return lambda x: float(x) <= float(value)  # type: ignore
+
+
+def apply_lt_modifier(value: str, modifiers: list[str]) -> types.Query:
+    if "lt" not in modifiers:
+        return None
+
+    return lambda x: float(x) < float(value)  # type: ignore
+
+
+def apply_gte_modifier(value: str, modifiers: list[str]) -> types.Query:
+    if "gte" not in modifiers:
+        return None
+
+    return lambda x: float(x) >= float(value)  # type: ignore
+
+
+def apply_gt_modifier(value: str, modifiers: list[str]) -> types.Query:
+    if "gt" not in modifiers:
+        return None
+
+    return lambda x: float(x) > float(value)  # type: ignore
+
+
+def apply_modifiers(value: str, modifiers: list[str]) -> types.Query:
     """
     Apply as many modifiers as we can during signature construction
     to speed up the matching stage as much as possible.
     """
+    # those modifiers have priority over the rest
+    # in other words, they should not be able to use #get_modified_value
+    for func in [
+        apply_cidr_modifier,
+        apply_lte_modifier,
+        apply_lt_modifier,
+        apply_gte_modifier,
+        apply_gt_modifier,
+        apply_re_modifiers,
+    ]:
+        result = func(value, modifiers)
+        if result is not None:
+            return result
 
-    has_cidr = "cidr" in modifiers
-    if has_cidr:
-        return lambda x: ipaddress.ip_address(x) in ipaddress.ip_network(value)  # type: ignore
-
-    has_lte = "lte" in modifiers
-    if has_lte:
-        return lambda x: float(x) <= float(value)  # type: ignore
-
-    has_lt = "lt" in modifiers
-    if has_lt:
-        return lambda x: float(x) < float(value)  # type: ignore
-
-    has_gte = "gte" in modifiers
-    if has_gte:
-        return lambda x: float(x) >= float(value)  # type: ignore
-
-    has_gt = "gt" in modifiers
-    if has_gt:
-        return lambda x: float(x) > float(value)  # type: ignore
-
-    has_re = "re" in modifiers
-    if has_re:
-        return apply_re_modifiers(value, modifiers)
-
+    # re modifier should be applied beforehand if it's set well
+    # so there should not be any re sub-modifiers left
     has_re_sub_modifiers = any(sub in modifiers for sub in {"i", "m", "s"})
     if has_re_sub_modifiers:
         raise ValueError("re sub-modifiers must be used with re modifier")
 
+    # base64 sub-modifiers should be used with base64 or base64offset modifier
+    base64_sub_modifiers = {"wide", "utf16be", "utf16le"}
+    for base64_sub_modifier in base64_sub_modifiers:
+        if base64_sub_modifier in modifiers:
+            validate_base64_sub_modifier_condition(modifiers, base64_sub_modifier)
+
     has_cased = "cased" in modifiers
     has_base64 = "base64" in modifiers or "base64offset" in modifiers
-
-    has_wide = "wide" in modifiers
-    if has_wide:
-        validate_base64_sub_modifier_condition(modifiers, "wide")
-
-    has_utf16be = "utf16be" in modifiers
-    if has_utf16be:
-        validate_base64_sub_modifier_condition(modifiers, "utf16be")
-
-    has_utf16le = "utf16le" in modifiers
-    if has_utf16le:
-        validate_base64_sub_modifier_condition(modifiers, "utf16le")
 
     # don't use re.IGNORECASE if cased modifier is used or base64 or base64offset modifier is used
     flags = (

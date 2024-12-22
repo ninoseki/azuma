@@ -24,6 +24,8 @@ logsource:
     [
         ({"a": base64.encodebytes(b"foo").decode()}, True),
         ({"a": base64.b64encode(b"foo").decode()}, True),
+        ({"a": base64.encodebytes(b"FOO").decode()}, False),
+        ({"a": base64.b64encode(b"FOO").decode()}, False),
         ({"a": "foo"}, False),
     ],
 )
