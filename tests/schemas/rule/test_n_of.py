@@ -1,21 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def one_of_them_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-    category: test
-detection:
-    a: ["a"]
-    b: ["b"]
-    condition: 1 of them
-"""
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -27,23 +12,13 @@ detection:
         ({"log": "c"}, False),
     ],
 )
-def test_1_of_them(event: dict, expected: bool, one_of_them_rule: schemas.Rule):
-    assert one_of_them_rule.match(event) is expected
-
-
-@pytest.fixture
-def two_of_them_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-    category: test
+def test_1_of_them(event: dict, expected: bool):
+    rule = build_rule("""
 detection:
-    a: ["a"]
-    b: ["b"]
-    condition: 2 of them
-"""
-    )
+  a: ["a"]
+  b: ["b"]
+  condition: 1 of them""")
+    assert rule.match(event) is expected
 
 
 @pytest.mark.parametrize(
@@ -55,25 +30,13 @@ detection:
         ({"log": "c"}, False),
     ],
 )
-def test_2_of_them(event: dict, expected: bool, two_of_them_rule: schemas.Rule):
-    assert two_of_them_rule.match(event) is expected
-
-
-@pytest.fixture
-def one_of_x_rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-  category: test
+def test_2_of_them(event: dict, expected: bool):
+    rule = build_rule("""
 detection:
-    aa: ["aa"]
-    ab: ["ab"]
-    ba: ["ba"]
-    bb: ["bb"]
-    condition: 1 of a*
-    """
-    )
+  a: ["a"]
+  b: ["b"]
+  condition: 2 of them""")
+    assert rule.match(event) is expected
 
 
 @pytest.mark.parametrize(
@@ -85,5 +48,13 @@ detection:
         ({"log": "aabb"}, True),
     ],
 )
-def test_1_of_x(event: dict, expected: bool, one_of_x_rule: schemas.Rule):
-    assert one_of_x_rule.match(event) is expected
+def test_1_of_x(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  aa: ["aa"]
+  ab: ["ab"]
+  ba: ["ba"]
+  bb: ["bb"]
+  condition: 1 of a*
+""")
+    assert rule.match(event) is expected

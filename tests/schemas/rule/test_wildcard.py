@@ -1,6 +1,6 @@
 import pytest
 
-from azuma import schemas
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -13,16 +13,13 @@ from azuma import schemas
     ],
 )
 def test_escaped_wildcards_with_literal_starts(event: dict, expected: bool):
-    rule = schemas.Rule.model_validate_yaml(
+    rule = build_rule(
         r"""
-title: literal_star
-logsource:
-  category: test
 detection:
-    field:
-        x: a\*a
-    condition: field
-    """
+  field:
+    x: a\*a
+  condition: field
+"""
     )
     assert rule.match(event) is expected
 
@@ -37,15 +34,12 @@ detection:
     ],
 )
 def test_escaped_wildcards_with_literal_question(event: dict, expected: bool):
-    rule = schemas.Rule.model_validate_yaml(
+    rule = build_rule(
         r"""
-title: literal_question
-logsource:
-  category: test
 detection:
-    field:
-        x: a\?a
-    condition: field
+  field:
+    x: a\?a
+  condition: field
     """
     )
     assert rule.match(event) is expected
@@ -61,16 +55,13 @@ detection:
     ],
 )
 def test_escaped_wildcards_with_star(event: dict, expected: bool):
-    rule = schemas.Rule.model_validate_yaml(
+    rule = build_rule(
         """
-title: star
-logsource:
-  category: test
 detection:
-    field:
-        x: a*a
-    condition: field
-    """
+  field:
+    x: a*a
+  condition: field
+"""
     )
     assert rule.match(event) is expected
 
@@ -85,15 +76,12 @@ detection:
     ],
 )
 def test_escaped_wildcards_with_question(event: dict, expected: bool):
-    rule = schemas.Rule.model_validate_yaml(
+    rule = build_rule(
         """
-title: question
-logsource:
-  category: test
 detection:
-    field:
-        x: a?a
-    condition: field
+  field:
+    x: a?a
+  condition: field
     """
     )
     assert rule.match(event) is expected

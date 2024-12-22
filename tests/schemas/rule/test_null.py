@@ -1,23 +1,6 @@
 import pytest
 
-from azuma import schemas
-
-
-@pytest.fixture
-def rule():
-    return schemas.Rule.model_validate_yaml(
-        """
-title: sample signature
-logsource:
-  category: test
-detection:
-    forbid:
-        x: null
-    filter:
-        y: null
-    condition: forbid and not filter
-    """
-    )
+from tests.utils import build_rule
 
 
 @pytest.mark.parametrize(
@@ -28,5 +11,13 @@ detection:
         ({"y": "found", "x": "also"}, False),
     ],
 )
-def test_null_and_not_null(event: dict, expected: bool, rule: schemas.Rule):
+def test_null_and_not_null(event: dict, expected: bool):
+    rule = build_rule("""
+detection:
+  forbid:
+    x: null
+  filter:
+    y: null
+  condition: forbid and not filter
+""")
     assert rule.match(event) is expected
