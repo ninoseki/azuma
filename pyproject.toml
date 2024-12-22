@@ -8,7 +8,6 @@ license = "MIT"
 authors = [{ name = "Manabu Niseki", email = "manabu.niseki@gmail.com" }]
 dependencies = [
     "lark[interegular]~=1.2",
-    "loguru~=0.7",
     "pydantic~=2.10",
     "pyyaml~=6.0",
     "regex>=2024.11.6",
@@ -39,20 +38,21 @@ dev = [
     "build>=1.2.2.post1",
     "ci-py>=1.0,<2.0",
     "gitpython>=3.1.43,<4.0.0",
-    "lefthook>=1.9.2",
-    "mypy>=1.13.0",
+    "lefthook>=1.10.0",
+    "loguru>=0.7.3",
+    "mypy>=1.14.0",
     "pre-commit>=4.0.1",
     "pytest>=8.3.4",
     "pytest-pretty>=1.2,<2.0",
     "pytest-randomly>=3.16.0",
-    "ruff>=0.8.3",
+    "ruff>=0.8.4",
     "types-pyyaml>=6.0.12,<7.0.0",
     "types-regex>=2024.11.6.20241108",
     "uv-sort>=0.4.0",
 ]
 docs = [
     "mkdocs>=1.6.1",
-    "mkdocs-material>=9.5.48",
+    "mkdocs-material>=9.5.49",
     "mkdocstrings[python]>=0.27.0",
 ]
 
@@ -71,7 +71,7 @@ select = [
     "W",   # pycodestyle warnings
 ]
 ignore = [
-    "E501", # line too long, handled by black
+    "E501", # line too long
 ]
 
 [tool.mypy]
